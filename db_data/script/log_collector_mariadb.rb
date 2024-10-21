@@ -3,10 +3,10 @@ require 'net/scp'
 require 'net/ssh'
 
 # Configuration
-REMOTE_HOST = '172.150.0.5'      # Remplacez par l'adresse IP ou le nom d'hôte du serveur distant
-REMOTE_USER = 'user'          # Remplacez par le nom d'utilisateur sur le serveur distant
-REMOTE_PASSWORD = 'user123'   # Remplacez par le mot de passe de l'utilisateur
-REMOTE_PATH = '/home/user'    # Chemin sur le serveur distant où vous souhaitez stocker les logs
+REMOTE_HOST = '172.150.0.5'      
+REMOTE_USER = 'user'          
+REMOTE_PASSWORD = 'user123'   
+REMOTE_PATH = '/home/user'    
 
 # Liste des fichiers de log à collecter
 LOG_FILES = [
