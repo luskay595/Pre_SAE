@@ -1,0 +1,72 @@
+version: '3'
+
+services:
+  wordpress:
+    build:
+      context: ./wordpress
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_USER: user
+      WORDPRESS_DB_PASSWORD: password
+      WORDPRESS_DB_NAME: wordpress_db
+    volumes:
+      - ./wordpress:/var/www/html
+      - ./wordpress/apache-config/my-custom.conf:/etc/apache2/conf-available/my-custom.conf
+    networks:
+      log-net:
+        ipv4_address: 172.150.0.2
+    depends_on:
+      - db
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  db:
+    image: mariadb:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+      MYSQL_DATABASE: wordpress_db
+    volumes:
+      - ./db_data:/var/lib/mysql
+    networks:
+      log-net:
+        ipv4_address: 172.150.0.3
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    ports:
+      - "8080:80"
+    environment:
+      PMA_HOST: db
+      PMA_USER: user
+      PMA_PASSWORD: password
+    networks:
+      log-net:
+        ipv4_address: 172.150.0.4
+    depends_on:
+      - db
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  log-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.150.0.0/24
+
