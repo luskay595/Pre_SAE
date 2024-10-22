@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+
 require 'net/scp'
 require 'net/ssh'
 
@@ -13,7 +14,7 @@ LOG_FILES = [
   '/var/log/mysql/error.log',
 ]
 
-def collect_and_send_logs
+def collect_send
   LOG_FILES.each do |log_file|
     begin
       # Vérifiez si le fichier de log existe
@@ -42,4 +43,4 @@ def collect_and_send_logs
 end
 
 # Exécution du script
-collect_and_send_logs
+collect_send
