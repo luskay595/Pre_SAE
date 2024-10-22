@@ -3,8 +3,9 @@ FROM debian:stable-slim
 
 # Installer les paquets nécessaires
 RUN apt-get update && \
-    apt-get install -y openssh-server rsync && \
+    apt-get install -y openssh-server rsync ruby nano && \
     mkdir /var/run/sshd && \
+    gem install net-scp && \
     apt-get clean
 
 # Configurer SSH
@@ -21,9 +22,17 @@ RUN echo 'user:user123' | chpasswd
 RUN apt-get update && apt-get install -y sudo && \
     usermod -aG sudo user
 
+# Créer le répertoire de logs en tant qu'utilisateur non-root
+USER user
+RUN mkdir -p /home/user/logs
+
+# Revenir à l'utilisateur root pour démarrer le service SSH
+USER root
+
 # Exposer le port SSH
 EXPOSE 22
 
 # Commande pour démarrer le service SSH
 CMD ["/usr/sbin/sshd", "-D"]
+
 

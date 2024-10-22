@@ -1,42 +1,65 @@
 #!/usr/bin/env ruby
 
 require 'fileutils'
-require 'net/scp'
+
+# Paramètres à passer en ligne de commande
+if ARGV.length < 3
+  puts "Usage: #{$0} <REMOTE_HOST> <REMOTE_USER> <REMOTE_PASSWORD>"
+  exit 1
+end
 
 # Configuration du serveur central
-central_server = '172.150.0.5' # Adresse IP du serveur central
-destination_user = 'username'    # Remplace par le nom d'utilisateur pour se connecter au serveur central
-destination_dir = 'logs/central/sysweb' # Répertoire de destination sur le serveur central
+REMOTE_HOST = ARGV[0]             # Adresse IP ou nom d'hôte du serveur distant
+REMOTE_USER = ARGV[1]             # Nom d'utilisateur sur le serveur distant
+REMOTE_PASSWORD = ARGV[2]         # Mot de passe de l'utilisateur
+REMOTE_PATH = '/home/user/logs/wordpress'   # Chemin racine sur le serveur distant pour stocker les logs
 
 # Sources de logs à collecter
-log_sources = {
-  apache: '/var/log/apache2/access.log',
-  syslog: '/var/log/syslog'
-}
+APACHE_LOGS = [
+  '/var/log/apache2/wordpress_access.log',
+  '/var/log/apache2/wordpress_error.log'
+]
+SYSTEM_LOGS = [
+  '/var/log/syslog'
+]
 
-# Fonction pour collecter et envoyer les logs
-def collect_and_send_logs(log_sources, central_server, destination_user, destination_dir)
-  log_sources.each do |type, source|
-    if File.exist?(source)
-      # Créer le répertoire local pour le type de log
-      local_dir = File.join(destination_dir, type.to_s)
-      FileUtils.mkdir_p(local_dir)
+# Fonction pour créer les dossiers si nécessaire
+def ensure_remote_directories(remote_host, remote_user, remote_password, base_path, subdirectories)
+  subdirectories.each do |subdir|
+    puts "Création du répertoire #{subdir} sur #{remote_host}..."
+    command = "sshpass -p #{remote_password} ssh -o StrictHostKeyChecking=no #{remote_user}@#{remote_host} 'mkdir -p #{base_path}/#{subdir}'"
+    system(command) || puts("Erreur lors de la création du répertoire #{subdir}.")
+  end
+end
 
-      # Copier le log dans le répertoire local
-      FileUtils.cp(source, File.join(local_dir, File.basename(source)))
-      puts "Collected log from: #{source}"
+# Fonction pour synchroniser les logs avec rsync
+def sync_logs(log_files, remote_host, remote_user, remote_password, remote_path, subdirectory)
+  log_files.each do |log_file|
+    if File.exist?(log_file)
+      puts "Synchronisation du fichier de log : #{log_file} vers #{subdirectory}"
 
-      # Transférer le log au serveur central
-      Net::SCP.start(central_server, destination_user) do |scp|
-        scp.upload!(File.join(local_dir, File.basename(source)), "#{destination_dir}/#{type}/#{File.basename(source)}")
-        puts "Sent log to central server: #{destination_dir}/#{type}/#{File.basename(source)}"
-      end
+      # Commande rsync pour transférer uniquement les nouveaux fichiers
+      command = "sshpass -p #{remote_password} rsync -avz --progress -e 'ssh -o StrictHostKeyChecking=no' #{log_file} #{remote_user}@#{remote_host}:#{remote_path}/#{subdirectory}/"
+      system(command) || puts("Erreur lors de la synchronisation de #{log_file}")
+      
+      puts "Synchronisation réussie pour #{log_file}."
     else
-      puts "Log source does not exist: #{source}"
+      puts "Le fichier #{log_file} n'existe pas."
     end
   end
 end
 
-# Exécuter la collecte et l'envoi
-collect_and_send_logs(log_sources, central_server, destination_user, destination_dir)
+# Exécution du script
+def collect_and_send_logs(remote_host, remote_user, remote_password)
+  # Créer les sous-répertoires sur le serveur distant
+  ensure_remote_directories(remote_host, remote_user, remote_password, REMOTE_PATH, ['apache', 'system'])
 
+  # Synchroniser les logs Apache
+  sync_logs(APACHE_LOGS, remote_host, remote_user, remote_password, REMOTE_PATH, 'apache')
+
+  # Synchroniser les logs système
+  sync_logs(SYSTEM_LOGS, remote_host, remote_user, remote_password, REMOTE_PATH, 'system')
+end
+
+# Appeler la fonction principale
+collect_and_send_logs(REMOTE_HOST, REMOTE_USER, REMOTE_PASSWORD)

@@ -1,14 +1,19 @@
 # Utiliser l'image officielle de WordPress
 FROM wordpress:latest
 
-# Copier le fichier de configuration Apache dans le conteneur
-COPY apache-config/my-custom.conf /etc/apache2/conf-available/my-custom.conf
+# Installer Ruby, Nano, rsyslog et la gem net-scp
+RUN apt-get update && apt-get install -y ruby nano rsyslog rsync openssh-client sshpass && gem install net-scp
 
-# Activer le fichier de configuration
-RUN a2enconf my-custom
+# Copier le fichier de configuration Apache VirtualHost dans le conteneur
+COPY apache-config/my-custom.conf /etc/apache2/sites-available/my-custom.conf
 
-# Exposer le port 80 (déjà exposé par l'image par défaut, mais inclus pour clarté)
+# Activer le VirtualHost et désactiver le VirtualHost par défaut
+RUN a2dissite 000-default \
+    && a2ensite my-custom
+
+# Exposer le port 80 (déjà exposé par l'image WordPress)
 EXPOSE 80
 
-# Commande par défaut pour démarrer Apache
-CMD ["apache2-foreground"]
+# Commande par défaut pour démarrer rsyslogd et Apache
+CMD rsyslogd && apache2-foreground
+

@@ -27,7 +27,9 @@ services:
         max-file: "3"
 
   db:
-    image: mariadb:latest
+    build:
+      context: ./db
+      dockerfile: Dockerfile
     environment:
       MYSQL_ROOT_PASSWORD: root_password
       MYSQL_USER: user
@@ -46,7 +48,9 @@ services:
         max-file: "3"
 
   phpmyadmin:
-    image: phpmyadmin/phpmyadmin
+    build:
+      context: ./phpmyadmin
+      dockerfile: Dockerfile
     ports:
       - "8080:80"
     environment:
@@ -72,7 +76,7 @@ services:
       log-net:
         ipv4_address: 172.150.0.5
     volumes:
-      - ./central/logs:/logs/
+      - ./central/logs:/home/user/logs/
     logging:
       driver: json-file
       options:
@@ -85,4 +89,3 @@ networks:
     ipam:
       config:
         - subnet: 172.150.0.0/24
-
