@@ -38,6 +38,9 @@ services:
     volumes:
       - ./db_data:/var/lib/mysql
       - ./50-server.cnf:/etc/mysql/mariadb.conf.d/50-server.cnf
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "3306:3306" 
     networks:
       log-net:
         ipv4_address: 172.150.0.3
@@ -55,8 +58,8 @@ services:
       - "8080:80"
     environment:
       PMA_HOST: db
-      PMA_USER: user
-      PMA_PASSWORD: password
+      PMA_USER: root
+      PMA_PASSWORD: root_password
     networks:
       log-net:
         ipv4_address: 172.150.0.4
