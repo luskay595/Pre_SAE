@@ -3,9 +3,11 @@ FROM debian:stable-slim
 
 # Installer les paquets nécessaires
 RUN apt-get update && \
-    apt-get install -y openssh-server rsync ruby nano && \
+    apt-get install -y openssh-server rsync ruby nano ruby-dev build-essential libmariadb-dev openssh-client sshpass && \
     mkdir /var/run/sshd && \
     gem install net-scp && \
+    gem install bundler && \
+    gem install mysql2 && \
     apt-get clean
 
 # Configurer SSH
