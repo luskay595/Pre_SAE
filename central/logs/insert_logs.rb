@@ -1,3 +1,4 @@
+#!/usr/bin/env ruby
 require 'mysql2'
 require 'date'
 
@@ -17,7 +18,8 @@ client.query <<-SQL
   CREATE TABLE IF NOT EXISTS system_logs (
     id INT AUTO_INCREMENT PRIMARY KEY,
     log_time DATETIME,
-    log_message TEXT
+    log_message TEXT,
+    UNIQUE(log_time, log_message) -- Pour éviter les doublons
   );
 SQL
 
@@ -32,7 +34,8 @@ client.query <<-SQL
     status_code INT,
     response_size INT,
     referer TEXT,
-    user_agent TEXT
+    user_agent TEXT,
+    UNIQUE(remote_addr, log_time, request_uri, status_code) -- Pour éviter les doublons
   );
 SQL
 
@@ -40,13 +43,18 @@ client.query <<-SQL
   CREATE TABLE IF NOT EXISTS mariadb_logs (
     id INT AUTO_INCREMENT PRIMARY KEY,
     log_time DATETIME,
-    log_message TEXT
+    log_message TEXT,
+    UNIQUE(log_time, log_message) -- Pour éviter les doublons
   );
 SQL
 
 # Méthode pour insérer un log système
 def insert_system_log(client, log_time, log_message)
-  client.prepare("INSERT INTO system_logs (log_time, log_message) VALUES (?, ?)").execute(log_time, log_message)
+  begin
+    client.prepare("INSERT IGNORE INTO system_logs (log_time, log_message) VALUES (?, ?)").execute(log_time, log_message)
+  rescue Mysql2::Error => e
+    puts "Erreur lors de l'insertion du log système: #{e.message}"
+  end
 end
 
 # Méthode pour insérer un log Apache
@@ -56,21 +64,24 @@ def insert_apache_log(client, log_line)
 
   if match
     log_time = DateTime.strptime(match[:log_time], "%d/%b/%Y:%H:%M:%S %z").to_time
-    client.prepare("INSERT INTO apache_logs (remote_addr, log_time, request_method, request_uri, http_version, status_code, response_size, referer, user_agent) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)").execute(
-      match[:remote_addr],
-      log_time,
-      match[:request_method],
-      match[:request_uri],
-      match[:http_version],
-      match[:status_code].to_i,
-      match[:response_size].to_i,
-      match[:referer],
-      match[:user_agent]
-    )
+    begin
+      client.prepare("INSERT IGNORE INTO apache_logs (remote_addr, log_time, request_method, request_uri, http_version, status_code, response_size, referer, user_agent) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)").execute(
+        match[:remote_addr],
+        log_time,
+        match[:request_method],
+        match[:request_uri],
+        match[:http_version],
+        match[:status_code].to_i,
+        match[:response_size].to_i,
+        match[:referer],
+        match[:user_agent]
+      )
+    rescue Mysql2::Error => e
+      puts "Erreur lors de l'insertion du log Apache: #{e.message}"
+    end
   end
 end
 
-# Méthode pour insérer un log MariaDB
 # Méthode pour insérer un log MariaDB
 def insert_mariadb_log(client, log_line)
   regex = /(?<log_time>\d{4}-\d{2}-\d{2}\s+\d{1,2}:\d{2}:\d{2})\s+\d+\s+\[(?<log_message>[^\]]+\].*)/
@@ -78,9 +89,13 @@ def insert_mariadb_log(client, log_line)
 
   if match
     log_time = DateTime.strptime(match[:log_time], "%Y-%m-%d %H:%M:%S")
-    client.prepare("INSERT INTO mariadb_logs (log_time, log_message) VALUES (?, ?)").execute(log_time, match[:log_message])
+    begin
+      client.prepare("INSERT IGNORE INTO mariadb_logs (log_time, log_message) VALUES (?, ?)").execute(log_time, match[:log_message])
+    rescue Mysql2::Error => e
+      puts "Erreur lors de l'insertion du log MariaDB: #{e.message}"
+    end
   else
-    puts "Log line didn't match: #{log_line}" # Ajout d'une ligne pour le débogage
+    puts "Log line didn't match: #{log_line}"
   end
 end
 
