@@ -162,11 +162,38 @@ def detect_high_cpu_usage(client, anomaly_client, log_table, server_type)
   end
 end
 
+def detect_failed_logins(client, anomaly_client)
+  query = <<-SQL
+    SELECT log_time, log_message
+    FROM mariadb_error_logs
+    WHERE log_message LIKE '%Access denied for user%'
+  SQL
+
+  results = client.query(query)
+
+  results.each do |row|
+    log_message = row['log_message']
+    log_time = row['log_time']
+    
+    # Extraire le nom d'utilisateur et l'adresse IP à partir du log_message
+    if log_message =~ /Access denied for user '([^']+)'@'([^']+)'/
+      user = $1
+      ip_address = $2
+      details = "Accès refusé pour l'utilisateur '#{user}' à partir de l'adresse IP '#{ip_address}' à #{log_time}"
+
+      # Insérer l'anomalie
+      insert_anomaly(anomaly_client, 'sgbd', 'Échec de connexion', details)
+      puts "Anomalie détectée : #{details}"
+    end
+  end
+end
+
 # Appel des fonctions pour détecter les anomalies
 detect_web_server_errors(client, anomaly_client)
 detect_slow_queries(client, anomaly_client)
 detect_high_cpu_usage(client, anomaly_client, 'mariadb_system_logs', 'sgbd')
 detect_high_cpu_usage(client, anomaly_client, 'wordpress_system_logs', 'wordpress')
+detect_failed_logins(client, anomaly_client)
 
 # Fermeture des connexions
 client.close

@@ -17,3 +17,11 @@
 2024-10-23T17:11:33.079119+00:00 b8b407dbe053 root: message repeated 39 times: [ ALERT: Utilisation CPU élevée: 100%]
 2024-10-23T17:12:33.308409+00:00 b8b407dbe053 root: ALERT: Utilisation CPU élevée: 100%
 2024-10-23T17:54:42.877283+00:00 b8b407dbe053 root: message repeated 42 times: [ ALERT: Utilisation CPU élevée: 100%]
+2024-10-23T17:55:43.099568+00:00 b8b407dbe053 root: ALERT: Utilisation CPU élevée: 100%
+2024-10-23T19:42:13.599462+00:00 b8b407dbe053 root: ALERT: Utilisation CPU élevée: 100%
+2024-10-23T19:42:14.329789+00:00 b8b407dbe053 rsyslogd: imklog: cannot open kernel log (/proc/kmsg): Operation not permitted.
+2024-10-23T19:42:14.329820+00:00 b8b407dbe053 rsyslogd: activation of module imklog failed [v8.2312.0 try https://www.rsyslog.com/e/2145 ]
+2024-10-23T19:42:14.329824+00:00 b8b407dbe053 rsyslogd: rsyslogd's groupid changed to 103
+2024-10-23T19:42:14.329828+00:00 b8b407dbe053 rsyslogd: rsyslogd's userid changed to 101
+2024-10-23T19:42:14.329832+00:00 b8b407dbe053 rsyslogd: [origin software="rsyslogd" swVersion="8.2312.0" x-pid="16" x-info="https://www.rsyslog.com"] start
+2024-10-23T19:43:13.820781+00:00 b8b407dbe053 root: ALERT: Utilisation CPU élevée: 100%
