@@ -19,7 +19,7 @@ client.query <<-SQL
     id INT AUTO_INCREMENT PRIMARY KEY,
     log_time DATETIME,
     log_message TEXT,
-    UNIQUE(log_time, log_message) -- Pour éviter les doublons
+    UNIQUE(log_time, log_message)
   );
 SQL
 
@@ -35,61 +35,37 @@ client.query <<-SQL
     response_size INT,
     referer TEXT,
     user_agent TEXT,
-    UNIQUE(remote_addr, log_time, request_uri, status_code) -- Pour éviter les doublons
+    UNIQUE(remote_addr, log_time, request_uri, status_code)
   );
 SQL
 
-# Table pour les logs système de MariaDB
 client.query <<-SQL
   CREATE TABLE IF NOT EXISTS mariadb_system_logs (
     id INT AUTO_INCREMENT PRIMARY KEY,
     log_time DATETIME,
     log_message TEXT,
-    UNIQUE(log_time, log_message) -- Pour éviter les doublons
+    UNIQUE(log_time, log_message)
   );
 SQL
-
-
 
 client.query <<-SQL
   CREATE TABLE IF NOT EXISTS mariadb_error_logs (
     id INT AUTO_INCREMENT PRIMARY KEY,
     log_time DATETIME,
     log_message TEXT,
-    UNIQUE(log_time, log_message) -- Pour éviter les doublons
+    UNIQUE(log_time, log_message)
   );
 SQL
 
 client.query <<-SQL
-  CREATE TABLE IF NOT EXISTS mariadb_slow_query_logs (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    log_time DATETIME,
-    user VARCHAR(100),
-    user_id VARCHAR(100),
-    host VARCHAR(100),
-    thread_id INT,
-    schema_name VARCHAR(100),
-    qc_hit VARCHAR(10),
-    query_time FLOAT,
-    lock_time FLOAT,
-    rows_sent INT,
-    rows_examined INT,
-    rows_affected INT,
-    bytes_sent INT,
-    full_scan VARCHAR(10),
-    full_join VARCHAR(10),
-    tmp_table VARCHAR(10),
-    tmp_table_on_disk VARCHAR(10),
-    filesort VARCHAR(10),
-    filesort_on_disk VARCHAR(10),
-    merge_passes INT,
-    priority_queue VARCHAR(10),
-    query TEXT,
-    UNIQUE(log_time, thread_id) -- Pour éviter les doublons
-  );
+CREATE TABLE IF NOT EXISTS mariadb_slow_query_logs (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  log_time DATETIME,
+  host VARCHAR(100),
+  query TEXT,
+  UNIQUE(log_time, host, query)
+);
 SQL
-
-
 
 # Méthode pour insérer un log système WordPress
 def insert_wordpress_system_log(client, log_time, log_message)
@@ -126,43 +102,15 @@ def insert_apache_log(client, log_line)
 end
 
 # Méthode pour insérer un log de requête lente MariaDB
-def insert_mariadb_slow_query_log(client, log_line)
-  regex = /^# Time:\s(?<time>\d{6} \d{2}:\d{2}:\d{2})\n
-           #\sUser@Host:\s(?<user>\S+)\[(?<user_id>\S+)\]\s@\s\[(?<host>\S*)\]\n
-           #\sThread_id:\s(?<thread_id>\d+)\sSchema:\s(?<schema>\S+)\sQC_hit:\s(?<qc_hit>\S+)\n
-           #\sQuery_time:\s(?<query_time>[0-9.]+)\sLock_time:\s(?<lock_time>[0-9.]+)\sRows_sent:\s(?<rows_sent>\d+)\sRows_examined:\s(?<rows_examined>\d+)\n
-           #\sRows_affected:\s(?<rows_affected>\d+)\sBytes_sent:\s(?<bytes_sent>\d+)\n
-           (?:#\sTmp_tables:\s(?<tmp_tables>\d+)\sTmp_disk_tables:\s(?<tmp_disk_tables>\d+)\sTmp_table_sizes:\s(?<tmp_table_sizes>\d+)\n)?
-           #\sFull_scan:\s(?<full_scan>\S+)\sFull_join:\s(?<full_join>\S+)\sTmp_table:\s(?<tmp_table>\S+)\sTmp_table_on_disk:\s(?<tmp_table_on_disk>\S+)\n
-           #\sFilesort:\s(?<filesort>\S+)\sFilesort_on_disk:\s(?<filesort_on_disk>\S+)\sMerge_passes:\s(?<merge_passes>\d+)\sPriority_queue:\s(?<priority_queue>\S+)\n
-           (.*);$/x
+def insert_mariadb_slow_query_log(client, log_time, host, query)
+  return if log_time.nil? || host.nil? || query.nil?
 
-  match = regex.match(log_line)
-
-  if match
-    log_time = DateTime.strptime(match[:time], "%y%m%d %H:%M:%S")
-    query = match.post_match.strip  # Récupère la requête après les logs
-    begin
-      client.prepare("INSERT IGNORE INTO mariadb_slow_query_logs 
-        (log_time, user, user_id, host, thread_id, schema_name, qc_hit, query_time, lock_time, rows_sent, rows_examined, rows_affected, bytes_sent, full_scan, full_join, tmp_table, tmp_table_on_disk, filesort, filesort_on_disk, merge_passes, priority_queue, query) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
-        .execute(
-          log_time, match[:user], match[:user_id], match[:host], match[:thread_id].to_i, match[:schema],
-          match[:qc_hit], match[:query_time].to_f, match[:lock_time].to_f, match[:rows_sent].to_i,
-          match[:rows_examined].to_i, match[:rows_affected].to_i, match[:bytes_sent].to_i, match[:full_scan],
-          match[:full_join], match[:tmp_table], match[:tmp_table_on_disk], match[:filesort],
-          match[:filesort_on_disk], match[:merge_passes].to_i, match[:priority_queue], query
-        )
-    rescue Mysql2::Error => e
-      puts "Erreur lors de l'insertion du log de requête lente MariaDB: #{e.message}"
-    end
-  else
-    puts "Log de requête lente non reconnu : #{log_line}"
+  begin
+    client.prepare("INSERT IGNORE INTO mariadb_slow_query_logs (log_time, host, query) VALUES (?, ?, ?)").execute(log_time, host, query)
+  rescue Mysql2::Error => e
+    puts "Erreur lors de l'insertion du log de requête lente MariaDB: #{e.message}"
   end
 end
-
-
-
 
 # Méthode pour insérer un log système MariaDB
 def insert_mariadb_system_log(client, log_time, log_message)
@@ -190,9 +138,6 @@ def insert_mariadb_error_log(client, log_line)
   end
 end
 
-
-
-
 # Traitement des fichiers de log
 def process_logs(client)
   # Chemins des fichiers de log
@@ -203,12 +148,10 @@ def process_logs(client)
   mariadb_slow_log_path = './sgbd/mariadb/mariadb-slow.log'
 
   # Traitement des logs système WordPress
-  # Traitement des logs système WordPress
-File.foreach(wordpress_system_log_path, encoding: 'UTF-8') do |line|
-  log_time = DateTime.parse(line.split[0..1].join(' '))
-  insert_wordpress_system_log(client, log_time, line.strip)
-end
-
+  File.foreach(wordpress_system_log_path, encoding: 'UTF-8') do |line|
+    log_time = DateTime.parse(line.split[0..1].join(' '))
+    insert_wordpress_system_log(client, log_time, line.strip)
+  end
 
   # Traitement des logs Apache
   File.foreach(apache_access_log_path) do |line|
@@ -227,12 +170,49 @@ end
   end
 
   # Traitement des logs de requêtes lentes MariaDB
-  File.foreach(mariadb_slow_log_path, encoding: 'UTF-8') do |line|
-    insert_mariadb_slow_query_log(client, line.strip)
-  end
-  
-  	
+  process_mariadb_slow_logs(client, mariadb_slow_log_path)
 end
+
+# Traitement des logs de requêtes lentes MariaDB
+# Traitement des logs de requêtes lentes MariaDB
+def process_mariadb_slow_logs(client, mariadb_slow_log_path)
+  log_time = nil
+  host = nil
+  query = nil
+  
+  File.foreach(mariadb_slow_log_path, encoding: 'UTF-8') do |line|
+    if line.strip.empty?
+      # Une ligne vide indique la fin d'un log
+      if log_time && host && query
+        insert_mariadb_slow_query_log(client, log_time, host, query)
+      end
+      # Réinitialise pour le prochain log
+      log_time = nil
+      host = nil
+      query = nil
+    elsif line.start_with?("# Time:")
+      log_time_str = line.split[2..3].join(' ')
+      log_time = DateTime.strptime(log_time_str, "%y%m%d %H:%M:%S")
+    elsif line.start_with?("# User@Host:")
+      host = line.split('[')[2].chomp(']')
+    elsif line.strip.start_with?("SELECT", "UPDATE", "DELETE", "INSERT", "REPLACE")
+      query = line.strip
+
+      # Insérer immédiatement après avoir récupéré une requête
+      if log_time && host && query
+        insert_mariadb_slow_query_log(client, log_time, host, query)
+        # Réinitialiser pour le prochain log
+        log_time = nil
+        host = nil
+        query = nil
+      end
+    end
+  end
+
+  # Traite les lignes restantes si le fichier ne se termine pas par une ligne vide
+  insert_mariadb_slow_query_log(client, log_time, host, query) if log_time && host && query
+end
+
 
 # Exécution du traitement des logs
 process_logs(client)
