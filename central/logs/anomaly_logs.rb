@@ -37,7 +37,8 @@ CREATE TABLE IF NOT EXISTS detected_anomalies (
     server_type VARCHAR(50),
     anomaly_type VARCHAR(50),
     details TEXT,
-    detected_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    detected_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY unique_anomaly (server_type, anomaly_type, details, detected_at) -- Index unique
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 SQL
 
@@ -48,162 +49,115 @@ rescue Mysql2::Error => e
 end
 
 def insert_anomaly(anomaly_client, server_type, anomaly_type, details)
-  insert_query = "INSERT INTO detected_anomalies (server_type, anomaly_type, details) VALUES (?, ?, ?)"
-  stmt = anomaly_client.prepare(insert_query)
-  stmt.execute(server_type, anomaly_type, details)
+  # Vérification de l'existence de l'anomalie
+  check_query = <<-SQL
+    SELECT COUNT(*) AS count FROM detected_anomalies
+    WHERE server_type = ? AND anomaly_type = ? AND details = ? AND detected_at > NOW() - INTERVAL 5 MINUTE
+  SQL
+
+  stmt = anomaly_client.prepare(check_query)
+  result = stmt.execute(server_type, anomaly_type, details)
+  count = result.first['count']
+
+  if count == 0
+    # Insérer l'anomalie uniquement si elle n'existe pas
+    insert_query = "INSERT INTO detected_anomalies (server_type, anomaly_type, details) VALUES (?, ?, ?)"
+    stmt = anomaly_client.prepare(insert_query)
+    stmt.execute(server_type, anomaly_type, details)
+  else
+    puts "Anomalie déjà enregistrée : #{details}"
+  end
 end
 
+
+# Détection d'erreurs 500 répétées avec moins de 5 minutes d'intervalle
 def detect_web_server_errors(client, anomaly_client)
-  # Erreurs serveur web : plus de 5 erreurs 500 en moins de 5 minutes
-  query_500 = <<-SQL
-    SELECT COUNT(*) AS error_count, 
-           DATE_FORMAT(log_time, '%Y-%m-%d %H:%i') AS time_slot
+  query = <<-SQL
+    SELECT status_code, log_time 
     FROM apache_logs
     WHERE status_code = 500
-    AND log_time >= NOW() - INTERVAL 5 MINUTE
-    GROUP BY time_slot
-    HAVING error_count > 5
-  SQL
-
-  results_500 = client.query(query_500)
-  puts "Détection d'erreurs 500 : #{results_500.count} résultats trouvés."
-  results_500.each do |row|
-    details = "#{row['error_count']} erreurs 500 détectées à #{row['time_slot']}"
-    insert_anomaly(anomaly_client, 'wordpress', 'Erreur 500', details)
-    puts "Anomalie détectée : #{details}"
-  end
-
-  # Erreurs serveur web : plus de 5 erreurs 403 en moins de 5 minutes
-  query_403 = <<-SQL
-    SELECT COUNT(*) AS error_count, 
-           DATE_FORMAT(log_time, '%Y-%m-%d %H:%i') AS time_slot
-    FROM apache_logs
-    WHERE status_code = 403
-    AND log_time >= NOW() - INTERVAL 5 MINUTE
-    GROUP BY time_slot
-    HAVING error_count > 5
-  SQL
-
-  results_403 = client.query(query_403)
-  puts "Détection d'erreurs 403 : #{results_403.count} résultats trouvés."
-  results_403.each do |row|
-    details = "#{row['error_count']} erreurs 403 détectées à #{row['time_slot']}"
-    insert_anomaly(anomaly_client, 'wordpress', 'Erreur 403', details)
-    puts "Anomalie détectée : #{details}"
-  end
-end
-
-def detect_slow_queries(client, anomaly_client)
-  # Requêtes lentes dans la base de données : toutes les requêtes dans la table ont déjà pris plus de 2 secondes
-  query = <<-SQL
-    SELECT COUNT(*) AS query_count, 
-           DATE_FORMAT(log_time, '%Y-%m-%d %H:%i') AS time_slot
-    FROM mariadb_slow_query_logs
-    WHERE log_time >= NOW() - INTERVAL 1 HOUR
-    GROUP BY time_slot
-    HAVING query_count > 3
+    ORDER BY log_time ASC
   SQL
 
   results = client.query(query)
-  puts "Détection de requêtes lentes : #{results.count} résultats trouvés."
+  errors = []
+  last_time = nil
+
   results.each do |row|
-    details = "#{row['query_count']} requêtes lentes détectées à #{row['time_slot']}"
-    insert_anomaly(anomaly_client, 'sgbd', 'Requête lente', details)
-    puts "Anomalie détectée : #{details}"
+    log_time = row['log_time'] # Utilisation directe de log_time sans Time.parse
+    if last_time.nil? || (log_time - last_time) > 300 # plus de 5 minutes
+      errors = [log_time]
+    else
+      errors << log_time
+      if errors.size > 5
+        details = "#{errors.size} erreurs 500 détectées entre #{errors.first} et #{errors.last}"
+        insert_anomaly(anomaly_client, 'wordpress', 'Erreur 500', details)
+        puts "Anomalie détectée : #{details}"
+        errors.clear
+      end
+    end
+    last_time = log_time
   end
 end
 
-def detect_high_cpu_usage_sgbd(client, anomaly_client)
-  # Utilisation excessive du CPU : détecter des pics d'utilisation CPU
-  cpu_query = <<-SQL
+
+# Détection de requêtes lentes (plus de 2 secondes) répétées au moins 5 fois
+# Détection de requêtes lentes (plus de 2 secondes) répétées au moins 5 fois
+def detect_slow_queries(client, anomaly_client)
+  # Sélection de toutes les requêtes lentes dans l'ordre de leur log_time
+  query = <<-SQL
+    SELECT log_time, host, query
+    FROM mariadb_slow_query_logs
+    ORDER BY log_time ASC
+  SQL
+
+  results = client.query(query)
+  slow_queries = []
+
+  results.each do |row|
+    log_time = row['log_time']
+
+    # Si le tableau est vide, on initialise avec la première entrée
+    slow_queries << row if slow_queries.empty?
+
+    # Vérification avant d'accéder à slow_queries.first
+    if slow_queries.any?
+      # Tant que le temps écoulé entre la première et la dernière requête dépasse 5 minutes, on vide la liste
+      while slow_queries.any? && (log_time - slow_queries.first['log_time']) > 300 # 300 secondes = 5 minutes
+        slow_queries.shift
+      end
+    end
+
+    # Ajouter la requête actuelle
+    slow_queries << row
+
+    # Si nous avons plus de 5 requêtes lentes dans un intervalle de 5 minutes, détecter une anomalie
+    if slow_queries.size >= 5
+      details = "#{slow_queries.size} requêtes lentes détectées entre #{slow_queries.first['log_time']} et #{slow_queries.last['log_time']} pour les hôtes #{slow_queries.map { |q| q['host'] }.uniq.join(', ')}"
+      insert_anomaly(anomaly_client, 'sgbd', 'Requêtes lentes', details)
+      puts "Anomalie détectée : #{details}"
+
+      # On ne vide pas tout slow_queries, on conserve la dernière requête pour continuer
+      slow_queries = [slow_queries.last]
+    end
+  end
+end
+
+
+
+
+# Détection de pics d'utilisation CPU dans les logs
+def detect_high_cpu_usage(client, anomaly_client, log_table, server_type)
+  query = <<-SQL
     SELECT log_time, log_message
-    FROM mariadb_system_logs
+    FROM #{log_table}
     WHERE log_message LIKE '%Utilisation CPU élevée%'
   SQL
 
-  results = client.query(cpu_query)
-  puts "Détection d'utilisation CPU élevée : #{results.count} résultats trouvés."
+  results = client.query(query)
   results.each do |row|
     details = row['log_message']
-    insert_anomaly(anomaly_client, 'sgbd', 'Utilisation CPU élevée', details)
-    puts "Anomalie détectée : #{details}"
-  end
-end
-def detect_high_cpu_usage_wordpress(client, anomaly_client)
-  # Utilisation excessive du CPU : détecter des pics d'utilisation CPU
-  cpu_query = <<-SQL
-    SELECT log_time, log_message
-    FROM wordpress_system_logs
-    WHERE log_message LIKE '%Utilisation CPU élevée%'
-  SQL
-
-  results = client.query(cpu_query)
-  puts "Détection d'utilisation CPU élevée : #{results.count} résultats trouvés."
-  results.each do |row|
-    details = row['log_message']
-    insert_anomaly(anomaly_client, 'wordpress', 'Utilisation CPU élevée', details)
-    puts "Anomalie détectée : #{details}"
-  end
-end
-def detect_failed_logins(client, anomaly_client)
-  # Tentatives multiples de connexion échouées
-  login_query = <<-SQL
-    SELECT COUNT(*) AS failed_count, 
-           DATE_FORMAT(log_time, '%Y-%m-%d %H:%i') AS time_slot
-    FROM mariadb_error_logs
-    WHERE log_message LIKE '%Access denied for user%'
-    AND log_time >= NOW() - INTERVAL 5 MINUTE
-    GROUP BY time_slot
-    HAVING failed_count > 5
-  SQL
-
-  results = client.query(login_query)
-  puts "Détection d'échecs de connexion : #{results.count} résultats trouvés."
-  results.each do |row|
-    details = "#{row['failed_count']} tentatives de connexion échouées à #{row['time_slot']}"
-    insert_anomaly(anomaly_client, 'sgbd', 'Échecs de connexion', details)
-    puts "Anomalie détectée : #{details}"
-  end
-end
-
-
-def detect_rate_of_errors(client, anomaly_client)
-  # Taux d'erreurs supérieur à 10% des requêtes dans une heure
-  error_rate_query = <<-SQL
-    SELECT COUNT(*) AS total_requests, 
-           SUM(CASE WHEN status_code >= 500 THEN 1 ELSE 0 END) AS error_count,
-           DATE_FORMAT(log_time, '%Y-%m-%d %H:%i') AS time_slot
-    FROM apache_logs
-    WHERE log_time >= NOW() - INTERVAL 1 HOUR
-    GROUP BY time_slot
-    HAVING (error_count / total_requests) > 0.10
-  SQL
-
-  results = client.query(error_rate_query)
-  puts "Détection de taux d'erreurs : #{results.count} résultats trouvés."
-  results.each do |row|
-    details = "#{row['error_count']} erreurs détectées sur #{row['total_requests']} requêtes à #{row['time_slot']}"
-    insert_anomaly(anomaly_client, 'wordpress', 'Taux d\'erreurs élevé', details)
-    puts "Anomalie détectée : #{details}"
-  end
-end
-
-def detect_high_unique_requests(client, anomaly_client)
-  # Nombre élevé de requêtes uniques : plus de 1000 dans une heure
-  unique_requests_query = <<-SQL
-    SELECT COUNT(DISTINCT remote_addr) AS unique_requests,
-           DATE_FORMAT(log_time, '%Y-%m-%d %H:%i') AS time_slot
-    FROM apache_logs
-    WHERE log_time >= NOW() - INTERVAL 1 HOUR
-    GROUP BY time_slot
-    HAVING unique_requests > 1000
-  SQL
-
-  results = client.query(unique_requests_query)
-  puts "Détection de requêtes uniques : #{results.count} résultats trouvés."
-  results.each do |row|
-    details = "#{row['unique_requests']} requêtes uniques détectées à #{row['time_slot']}"
-    insert_anomaly(anomaly_client, 'wordpress', 'Nombre élevé de requêtes uniques', details)
+    insert_anomaly(anomaly_client, server_type, 'Utilisation CPU élevée', details)
     puts "Anomalie détectée : #{details}"
   end
 end
@@ -211,11 +165,8 @@ end
 # Appel des fonctions pour détecter les anomalies
 detect_web_server_errors(client, anomaly_client)
 detect_slow_queries(client, anomaly_client)
-detect_high_cpu_usage_sgbd(client, anomaly_client)
-detect_high_cpu_usage_wordpress(client, anomaly_client)
-detect_failed_logins(client, anomaly_client)
-detect_rate_of_errors(client, anomaly_client)
-detect_high_unique_requests(client, anomaly_client)
+detect_high_cpu_usage(client, anomaly_client, 'mariadb_system_logs', 'sgbd')
+detect_high_cpu_usage(client, anomaly_client, 'wordpress_system_logs', 'wordpress')
 
 # Fermeture des connexions
 client.close
