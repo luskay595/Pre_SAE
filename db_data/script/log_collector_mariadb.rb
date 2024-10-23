@@ -16,8 +16,13 @@ REMOTE_PATH = '/home/user/logs/sgbd'   # Chemin racine sur le serveur distant po
 
 # Sources de logs à collecter
 MARIADB_LOGS = [
-  '/var/log/mysql/error.log'
+  '/var/log/mysql/error.log',
+  '/var/log/mysql/mysql.log'
 ]
+SYSTEM_LOGS = [
+  '/var/log/syslog'
+]
+
 
 # Fonction pour créer les dossiers si nécessaire
 def ensure_remote_directories(remote_host, remote_user, remote_password, base_path, subdirectories)
@@ -54,10 +59,13 @@ end
 # Exécution du script
 def collect_and_send_logs(remote_host, remote_user, remote_password)
   # Créer les sous-répertoires sur le serveur distant
-  ensure_remote_directories(remote_host, remote_user, remote_password, REMOTE_PATH, ['mariadb'])
+  ensure_remote_directories(remote_host, remote_user, remote_password, REMOTE_PATH, ['mariadb','system'])
 
   # Synchroniser les logs MariaDB
   sync_logs(MARIADB_LOGS, remote_host, remote_user, remote_password, REMOTE_PATH, 'mariadb')
+
+  # Synchroniser les logs système
+  sync_logs(SYSTEM_LOGS, remote_host, remote_user, remote_password, REMOTE_PATH, 'system')
 
   # Synchroniser les logs système
 end

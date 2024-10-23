@@ -53,7 +53,7 @@ basedir                 = /usr
 # Be aware that this log type is a performance killer.
 # Recommend only changing this at runtime for short testing periods if needed!
 general_log_file       = /var/log/mysql/mysql.log
-#general_log            = 1
+general_log            = 1
 
 # Error logging goes via stdout/stderr, which on systemd systems goes to
 # journald.
@@ -61,18 +61,18 @@ general_log_file       = /var/log/mysql/mysql.log
 log_error = /var/log/mysql/error.log
 # Enable the slow query log to see queries with especially long duration
 log_slow_query_file    = /var/log/mysql/mariadb-slow.log
-#log_slow_query_time    = 10
-#log_slow_verbosity     = query_plan,explain
-#log-queries-not-using-indexes
+log_slow_query_time    = 2
+log_slow_verbosity     = query_plan,explain
+log-queries-not-using-indexes
 #log_slow_min_examined_row_limit = 1000
-
+log_warnings = 2
 # The following can be used as easy to replay backup logs or for replication.
 # note: if you are setting up a replica, see README.Debian about other
 #       settings you may need to change.
 #server-id              = 1
 #log_bin                = /var/log/mysql/mysql-bin.log
 expire_logs_days        = 10
-#max_binlog_size        = 100M
+max_binlog_size        = 100M
 
 #
 # * SSL/TLS

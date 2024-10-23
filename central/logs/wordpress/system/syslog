@@ -1,6 +1,5 @@
-2024-10-22T16:48:55.240082+00:00 88c037aaf9e0 rsyslogd: imklog: cannot open kernel log (/proc/kmsg): Operation not permitted.
-2024-10-22T16:48:55.240159+00:00 88c037aaf9e0 rsyslogd: activation of module imklog failed [v8.2302.0 try https://www.rsyslog.com/e/2145 ]
-2024-10-22T16:48:55.240168+00:00 88c037aaf9e0 rsyslogd: [origin software="rsyslogd" swVersion="8.2302.0" x-pid="17" x-info="https://www.rsyslog.com"] start
-2024-10-22T16:51:34.792194+00:00 88c037aaf9e0 rsyslogd: imklog: cannot open kernel log (/proc/kmsg): Operation not permitted.
-2024-10-22T16:51:34.792260+00:00 88c037aaf9e0 rsyslogd: activation of module imklog failed [v8.2302.0 try https://www.rsyslog.com/e/2145 ]
-2024-10-22T16:51:34.792269+00:00 88c037aaf9e0 rsyslogd: [origin software="rsyslogd" swVersion="8.2302.0" x-pid="17" x-info="https://www.rsyslog.com"] start
+2024-10-23T09:54:49.735656+00:00 dfbc1ff893f1 root: ALERT: Utilisation CPU élevée: 100%
+2024-10-23T09:54:50.577338+00:00 dfbc1ff893f1 rsyslogd: imklog: cannot open kernel log (/proc/kmsg): Operation not permitted.
+2024-10-23T09:54:50.577347+00:00 dfbc1ff893f1 rsyslogd: activation of module imklog failed [v8.2302.0 try https://www.rsyslog.com/e/2145 ]
+2024-10-23T09:54:50.577350+00:00 dfbc1ff893f1 rsyslogd: [origin software="rsyslogd" swVersion="8.2302.0" x-pid="17" x-info="https://www.rsyslog.com"] start
+2024-10-23T09:55:49.893872+00:00 dfbc1ff893f1 root: ALERT: Utilisation CPU élevée: 100%
