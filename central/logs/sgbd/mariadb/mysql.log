@@ -1,50 +1,624 @@
 mariadbd, Version: 11.5.2-MariaDB-ubu2404-log (mariadb.org binary distribution). started with:
 Tcp port: 0  Unix socket: /run/mysqld/mysqld.sock
 Time		    Id Command	Argument
-241023  9:55:21	     3 Connect	root@172.150.0.5 on  using TCP/IP
-		     3 Query	CREATE DATABASE IF NOT EXISTS logs_db
-		     3 Query	USE logs_db
-		     3 Query	CREATE TABLE IF NOT EXISTS wordpress_system_logs (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    log_time DATETIME,
-    log_message TEXT,
-    UNIQUE(log_time, log_message) -- Pour éviter les doublons
-  )
-		     3 Query	CREATE TABLE IF NOT EXISTS apache_logs (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    remote_addr VARCHAR(45),
-    log_time DATETIME,
-    request_method VARCHAR(10),
-    request_uri TEXT,
-    http_version VARCHAR(10),
-    status_code INT,
-    response_size INT,
-    referer TEXT,
-    user_agent TEXT,
-    UNIQUE(remote_addr, log_time, request_uri, status_code) -- Pour éviter les doublons
-  )
-		     3 Query	CREATE TABLE IF NOT EXISTS mariadb_system_logs (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    log_time DATETIME,
-    log_message TEXT,
-    UNIQUE(log_time, log_message) -- Pour éviter les doublons
-  )
-		     3 Query	CREATE TABLE IF NOT EXISTS mariadb_error_logs (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    log_time DATETIME,
-    log_message TEXT,
-    UNIQUE(log_time, log_message) -- Pour éviter les doublons
-  )
-		     3 Prepare	INSERT IGNORE INTO wordpress_system_logs (log_time, log_message) VALUES (?, ?)
-		     3 Execute	INSERT IGNORE INTO wordpress_system_logs (log_time, log_message) VALUES (TIMESTAMP'2024-10-23 09:54:49.735656', '2024-10-23T09:54:49.735656+00:00 dfbc1ff893f1 root: ALERT: Utilisation CPU élevée: 100%')
-		     3 Prepare	INSERT IGNORE INTO wordpress_system_logs (log_time, log_message) VALUES (?, ?)
-		     3 Execute	INSERT IGNORE INTO wordpress_system_logs (log_time, log_message) VALUES (TIMESTAMP'2024-10-23 09:54:50.577338', '2024-10-23T09:54:50.577338+00:00 dfbc1ff893f1 rsyslogd: imklog: cannot open kernel log (/proc/kmsg): Operation not permitted.')
-		     3 Prepare	INSERT IGNORE INTO wordpress_system_logs (log_time, log_message) VALUES (?, ?)
-		     3 Execute	INSERT IGNORE INTO wordpress_system_logs (log_time, log_message) VALUES (TIMESTAMP'2024-10-23 09:54:50.577347', '2024-10-23T09:54:50.577347+00:00 dfbc1ff893f1 rsyslogd: activation of module imklog failed [v8.2302.0 try https://www.rsyslog.com/e/2145 ]')
-		     3 Prepare	INSERT IGNORE INTO wordpress_system_logs (log_time, log_message) VALUES (?, ?)
-		     3 Execute	INSERT IGNORE INTO wordpress_system_logs (log_time, log_message) VALUES (TIMESTAMP'2024-10-23 09:54:50.577350', '2024-10-23T09:54:50.577350+00:00 dfbc1ff893f1 rsyslogd: [origin software=\"rsyslogd\" swVersion=\"8.2302.0\" x-pid=\"17\" x-info=\"https://www.rsyslog.com\"] start')
-		     3 Close stmt	
-		     3 Close stmt	
-		     3 Close stmt	
-		     3 Close stmt	
-		     3 Quit	
+241023 10:03:56	     3 Connect	@172.150.0.4 on  using TCP/IP
+		     3 Connect	Access denied for user ''@'172.150.0.4' (using password: NO)
+		     4 Connect	@172.150.0.4 on  using TCP/IP
+		     4 Connect	Access denied for user ''@'172.150.0.4' (using password: NO)
+241023 10:04:00	     5 Connect	root@172.150.0.4 on  using TCP/IP
+		     5 Query	SELECT @@version, @@version_comment
+		     5 Query	SET NAMES 'utf8mb4' COLLATE 'utf8mb4_general_ci'
+		     5 Query	SET lc_messages = 'en_US'
+		     6 Connect	root@172.150.0.4 on  using TCP/IP
+		     6 Query	SHOW TABLES FROM `phpmyadmin`
+		     6 Query	SHOW TABLES FROM `logs_db`
+		     5 Query	SET collation_connection = 'utf8mb4_unicode_ci'
+		     6 Query	SHOW TABLES FROM `phpmyadmin`
+		     6 Query	SHOW TABLES FROM `logs_db`
+		     5 Init DB	logs_db
+		     5 Query	SHOW TABLES LIKE 'mariadb_system_logs'
+		     5 Query	SHOW FULL COLUMNS FROM `logs_db`.`mariadb_system_logs`
+		     5 Query	SHOW INDEXES FROM `logs_db`.`mariadb_system_logs`
+		     5 Query	SHOW SESSION VARIABLES LIKE 'FOREIGN_KEY_CHECKS'
+		     5 Query	SHOW  COLUMNS FROM `logs_db`.`mariadb_system_logs`
+		     5 Query	SELECT CURRENT_USER()
+		     5 Query	SHOW GRANTS
+		     5 Query	SELECT (COUNT(DB_first_level) DIV 100) * 100 from (  SELECT distinct SUBSTRING_INDEX(SCHEMA_NAME,  '_', 1)  DB_first_level  FROM INFORMATION_SCHEMA.SCHEMATA  WHERE `SCHEMA_NAME` < 'logs_db' ) t
+		     5 Query	SELECT `SCHEMA_NAME` FROM `INFORMATION_SCHEMA`.`SCHEMATA`, (SELECT DB_first_level FROM ( SELECT DISTINCT SUBSTRING_INDEX(SCHEMA_NAME, '_', 1) DB_first_level FROM INFORMATION_SCHEMA.SCHEMATA WHERE TRUE ) t ORDER BY DB_first_level ASC LIMIT 0, 100) t2 WHERE TRUE AND 1 = LOCATE(CONCAT(DB_first_level, '_'), CONCAT(SCHEMA_NAME, '_')) ORDER BY SCHEMA_NAME ASC
+		     5 Query	SELECT COUNT(*) FROM ( SELECT DISTINCT SUBSTRING_INDEX(SCHEMA_NAME, '_', 1) DB_first_level FROM INFORMATION_SCHEMA.SCHEMATA WHERE TRUE ) t
+		     5 Query	SELECT COUNT(*) FROM ( SELECT DISTINCT SUBSTRING_INDEX(SCHEMA_NAME, '_', 1) DB_first_level FROM INFORMATION_SCHEMA.SCHEMATA WHERE TRUE ) t
+		     5 Query	SELECT TABLE_NAME FROM information_schema.VIEWS WHERE TABLE_SCHEMA = 'logs_db' AND TABLE_NAME = 'mariadb_system_logs'
+		     5 Query	SELECT @@lower_case_table_names
+		     5 Query	SELECT *, `TABLE_SCHEMA`       AS `Db`, `TABLE_NAME`         AS `Name`, `TABLE_TYPE`         AS `TABLE_TYPE`, `ENGINE`             AS `Engine`, `ENGINE`             AS `Type`, `VERSION`            AS `Version`, `ROW_FORMAT`         AS `Row_format`, `TABLE_ROWS`         AS `Rows`, `AVG_ROW_LENGTH`     AS `Avg_row_length`, `DATA_LENGTH`        AS `Data_length`, `MAX_DATA_LENGTH`    AS `Max_data_length`, `INDEX_LENGTH`       AS `Index_length`, `DATA_FREE`          AS `Data_free`, `AUTO_INCREMENT`     AS `Auto_increment`, `CREATE_TIME`        AS `Create_time`, `UPDATE_TIME`        AS `Update_time`, `CHECK_TIME`         AS `Check_time`, `TABLE_COLLATION`    AS `Collation`, `CHECKSUM`           AS `Checksum`, `CREATE_OPTIONS`     AS `Create_options`, `TABLE_COMMENT`      AS `Comment` FROM `information_schema`.`TABLES` t WHERE `TABLE_SCHEMA`  IN ('logs_db') AND t.`TABLE_NAME`  = 'mariadb_system_logs' ORDER BY Name ASC
+		     5 Query	SELECT 1 FROM mysql.user LIMIT 1
+		     5 Query	SELECT 1 FROM (SELECT `GRANTEE`, `IS_GRANTABLE` FROM `INFORMATION_SCHEMA`.`COLUMN_PRIVILEGES` UNION SELECT `GRANTEE`, `IS_GRANTABLE` FROM `INFORMATION_SCHEMA`.`TABLE_PRIVILEGES` UNION SELECT `GRANTEE`, `IS_GRANTABLE` FROM `INFORMATION_SCHEMA`.`SCHEMA_PRIVILEGES` UNION SELECT `GRANTEE`, `IS_GRANTABLE` FROM `INFORMATION_SCHEMA`.`USER_PRIVILEGES`) t WHERE `IS_GRANTABLE` = 'YES' AND '''root''@''%''' LIKE `GRANTEE` LIMIT 1
+		     5 Query	SELECT `PRIVILEGE_TYPE` FROM `INFORMATION_SCHEMA`.`USER_PRIVILEGES` WHERE GRANTEE='''root''@''%''' AND PRIVILEGE_TYPE='TRIGGER'
+		     5 Quit	
+		     6 Quit	
+		     7 Connect	root@172.150.0.4 on  using TCP/IP
+		     7 Query	SELECT @@version, @@version_comment
+		     7 Query	SET NAMES 'utf8mb4' COLLATE 'utf8mb4_general_ci'
+		     7 Query	SET lc_messages = 'en_US'
+		     8 Connect	root@172.150.0.4 on  using TCP/IP
+		     8 Query	SHOW TABLES FROM `phpmyadmin`
+		     7 Query	SET collation_connection = 'utf8mb4_unicode_ci'
+		     8 Query	SHOW TABLES FROM `phpmyadmin`
+		     7 Query	SELECT CURRENT_USER()
+		     7 Query	SELECT `SCHEMA_NAME` FROM `INFORMATION_SCHEMA`.`SCHEMATA`, (SELECT DB_first_level FROM ( SELECT DISTINCT SUBSTRING_INDEX(SCHEMA_NAME, '_', 1) DB_first_level FROM INFORMATION_SCHEMA.SCHEMATA WHERE TRUE ) t ORDER BY DB_first_level ASC LIMIT 0, 100) t2 WHERE TRUE AND 1 = LOCATE(CONCAT(DB_first_level, '_'), CONCAT(SCHEMA_NAME, '_')) ORDER BY SCHEMA_NAME ASC
+		     7 Query	SELECT COUNT(*) FROM ( SELECT DISTINCT SUBSTRING_INDEX(SCHEMA_NAME, '_', 1) DB_first_level FROM INFORMATION_SCHEMA.SCHEMATA WHERE TRUE ) t
+		     7 Query	SELECT COUNT(*) FROM ( SELECT DISTINCT SUBSTRING_INDEX(SCHEMA_NAME, '_', 1) DB_first_level FROM INFORMATION_SCHEMA.SCHEMATA WHERE TRUE ) t
+		     7 Query	SELECT 1 FROM mysql.user LIMIT 1
+		     7 Query	SELECT 1 FROM (SELECT `GRANTEE`, `IS_GRANTABLE` FROM `INFORMATION_SCHEMA`.`COLUMN_PRIVILEGES` UNION SELECT `GRANTEE`, `IS_GRANTABLE` FROM `INFORMATION_SCHEMA`.`TABLE_PRIVILEGES` UNION SELECT `GRANTEE`, `IS_GRANTABLE` FROM `INFORMATION_SCHEMA`.`SCHEMA_PRIVILEGES` UNION SELECT `GRANTEE`, `IS_GRANTABLE` FROM `INFORMATION_SCHEMA`.`USER_PRIVILEGES`) t WHERE `IS_GRANTABLE` = 'YES' AND '''root''@''%''' LIKE `GRANTEE` LIMIT 1
+		     7 Query	SHOW MASTER LOGS
+		     8 Quit	
+		     7 Quit	
+		     9 Connect	root@172.150.0.4 on  using TCP/IP
+		     9 Query	SELECT @@version, @@version_comment
+		     9 Query	SET NAMES 'utf8mb4' COLLATE 'utf8mb4_general_ci'
+		     9 Query	SET lc_messages = 'en_US'
+		    10 Connect	root@172.150.0.4 on  using TCP/IP
+		    10 Query	SHOW TABLES FROM `phpmyadmin`
+		     9 Query	SET collation_connection = 'utf8mb4_unicode_ci'
+		    10 Query	SHOW TABLES FROM `phpmyadmin`
+		     9 Query	SELECT 1 FROM mysql.user LIMIT 1
+		     9 Query	SELECT CURRENT_USER()
+		     9 Query	SELECT 1 FROM (SELECT `GRANTEE`, `IS_GRANTABLE` FROM `INFORMATION_SCHEMA`.`COLUMN_PRIVILEGES` UNION SELECT `GRANTEE`, `IS_GRANTABLE` FROM `INFORMATION_SCHEMA`.`TABLE_PRIVILEGES` UNION SELECT `GRANTEE`, `IS_GRANTABLE` FROM `INFORMATION_SCHEMA`.`SCHEMA_PRIVILEGES` UNION SELECT `GRANTEE`, `IS_GRANTABLE` FROM `INFORMATION_SCHEMA`.`USER_PRIVILEGES`) t WHERE `IS_GRANTABLE` = 'YES' AND '''root''@''%''' LIKE `GRANTEE` LIMIT 1
+		     9 Quit	
+		    10 Quit	
+		    11 Connect	root@172.150.0.4 on  using TCP/IP
+		    11 Query	SELECT @@version, @@version_comment
+		    11 Query	SET NAMES 'utf8mb4' COLLATE 'utf8mb4_general_ci'
+		    11 Query	SET lc_messages = 'en_US'
+		    12 Connect	root@172.150.0.4 on  using TCP/IP
+		    12 Query	SHOW TABLES FROM `phpmyadmin`
+		    11 Query	SET collation_connection = 'utf8mb4_unicode_ci'
+		    12 Query	SHOW TABLES FROM `phpmyadmin`
+		    11 Query	SELECT 1 FROM mysql.user LIMIT 1
+		    11 Query	SELECT CURRENT_USER()
+		    11 Query	SELECT 1 FROM (SELECT `GRANTEE`, `IS_GRANTABLE` FROM `INFORMATION_SCHEMA`.`COLUMN_PRIVILEGES` UNION SELECT `GRANTEE`, `IS_GRANTABLE` FROM `INFORMATION_SCHEMA`.`TABLE_PRIVILEGES` UNION SELECT `GRANTEE`, `IS_GRANTABLE` FROM `INFORMATION_SCHEMA`.`SCHEMA_PRIVILEGES` UNION SELECT `GRANTEE`, `IS_GRANTABLE` FROM `INFORMATION_SCHEMA`.`USER_PRIVILEGES`) t WHERE `IS_GRANTABLE` = 'YES' AND '''root''@''%''' LIKE `GRANTEE` LIMIT 1
+		    12 Quit	
+		    11 Quit	
+		    13 Connect	root@172.150.0.4 on  using TCP/IP
+		    13 Query	SELECT @@version, @@version_comment
+		    13 Query	SET NAMES 'utf8mb4' COLLATE 'utf8mb4_general_ci'
+		    13 Query	SET lc_messages = 'en_US'
+		    14 Connect	root@172.150.0.4 on  using TCP/IP
+		    14 Query	SHOW TABLES FROM `phpmyadmin`
+		    13 Query	SET collation_connection = 'utf8mb4_unicode_ci'
+		    14 Query	SHOW TABLES FROM `phpmyadmin`
+		    13 Query	SELECT 1 FROM mysql.user LIMIT 1
+		    13 Query	SELECT CURRENT_USER()
+		    13 Query	SELECT 1 FROM (SELECT `GRANTEE`, `IS_GRANTABLE` FROM `INFORMATION_SCHEMA`.`COLUMN_PRIVILEGES` UNION SELECT `GRANTEE`, `IS_GRANTABLE` FROM `INFORMATION_SCHEMA`.`TABLE_PRIVILEGES` UNION SELECT `GRANTEE`, `IS_GRANTABLE` FROM `INFORMATION_SCHEMA`.`SCHEMA_PRIVILEGES` UNION SELECT `GRANTEE`, `IS_GRANTABLE` FROM `INFORMATION_SCHEMA`.`USER_PRIVILEGES`) t WHERE `IS_GRANTABLE` = 'YES' AND '''root''@''%''' LIKE `GRANTEE` LIMIT 1
+		    14 Quit	
+		    13 Quit	
+		    15 Connect	root@172.150.0.4 on  using TCP/IP
+		    15 Query	SELECT @@version, @@version_comment
+		    15 Query	SET NAMES 'utf8mb4' COLLATE 'utf8mb4_general_ci'
+		    15 Query	SET lc_messages = 'en_US'
+		    16 Connect	root@172.150.0.4 on  using TCP/IP
+		    16 Query	SHOW TABLES FROM `phpmyadmin`
+		    15 Query	SET collation_connection = 'utf8mb4_unicode_ci'
+		    16 Query	SHOW TABLES FROM `phpmyadmin`
+		    16 Quit	
+		    15 Quit	
+		    17 Connect	root@172.150.0.4 on  using TCP/IP
+		    17 Query	SELECT @@version, @@version_comment
+		    17 Query	SET NAMES 'utf8mb4' COLLATE 'utf8mb4_general_ci'
+		    17 Query	SET lc_messages = 'en_US'
+		    18 Connect	root@172.150.0.4 on  using TCP/IP
+		    18 Query	SHOW TABLES FROM `phpmyadmin`
+		    17 Query	SET collation_connection = 'utf8mb4_unicode_ci'
+		    18 Query	SHOW TABLES FROM `phpmyadmin`
+		    17 Query	SELECT CURRENT_USER()
+		    17 Query	SELECT `SCHEMA_NAME` FROM `INFORMATION_SCHEMA`.`SCHEMATA`, (SELECT DB_first_level FROM ( SELECT DISTINCT SUBSTRING_INDEX(SCHEMA_NAME, '_', 1) DB_first_level FROM INFORMATION_SCHEMA.SCHEMATA WHERE TRUE ) t ORDER BY DB_first_level ASC LIMIT 0, 100) t2 WHERE TRUE AND 1 = LOCATE(CONCAT(DB_first_level, '_'), CONCAT(SCHEMA_NAME, '_')) ORDER BY SCHEMA_NAME ASC
+		    17 Query	SELECT COUNT(*) FROM `INFORMATION_SCHEMA`.`TABLES` WHERE `TABLE_SCHEMA`='logs_db' AND `TABLE_TYPE` IN('BASE TABLE', 'SYSTEM VERSIONED')
+		    17 Query	SELECT COUNT(*) FROM `INFORMATION_SCHEMA`.`TABLES` WHERE `TABLE_SCHEMA`='logs_db' AND `TABLE_TYPE` NOT IN('BASE TABLE', 'SYSTEM VERSIONED')
+		    17 Query	SELECT @@lower_case_table_names
+		    17 Query	SELECT COUNT(*) FROM `INFORMATION_SCHEMA`.`ROUTINES` WHERE `ROUTINE_SCHEMA` ='logs_db' AND `ROUTINE_TYPE`='FUNCTION'
+		    17 Query	SELECT COUNT(*) FROM `INFORMATION_SCHEMA`.`ROUTINES` WHERE `ROUTINE_SCHEMA` ='logs_db'AND `ROUTINE_TYPE`='PROCEDURE'
+		    17 Query	SELECT COUNT(*) FROM `INFORMATION_SCHEMA`.`EVENTS` WHERE `EVENT_SCHEMA` ='logs_db'
+		    17 Query	SELECT `TABLE_NAME` AS `name` FROM `INFORMATION_SCHEMA`.`TABLES` WHERE `TABLE_SCHEMA`='logs_db' AND `TABLE_TYPE` IN('BASE TABLE', 'SYSTEM VERSIONED') ORDER BY `TABLE_NAME` ASC LIMIT 0, 50
+		    17 Query	SELECT COUNT(*) FROM `INFORMATION_SCHEMA`.`TABLES` WHERE `TABLE_SCHEMA`='logs_db' AND `TABLE_TYPE` IN('BASE TABLE', 'SYSTEM VERSIONED')
+		    17 Query	SELECT COUNT(*) FROM `INFORMATION_SCHEMA`.`TABLES` WHERE `TABLE_SCHEMA`='logs_db' AND `TABLE_TYPE` IN('BASE TABLE', 'SYSTEM VERSIONED')
+		    17 Query	SELECT 1 FROM mysql.user LIMIT 1
+		    17 Query	SELECT 1 FROM (SELECT `GRANTEE`, `IS_GRANTABLE` FROM `INFORMATION_SCHEMA`.`COLUMN_PRIVILEGES` UNION SELECT `GRANTEE`, `IS_GRANTABLE` FROM `INFORMATION_SCHEMA`.`TABLE_PRIVILEGES` UNION SELECT `GRANTEE`, `IS_GRANTABLE` FROM `INFORMATION_SCHEMA`.`SCHEMA_PRIVILEGES` UNION SELECT `GRANTEE`, `IS_GRANTABLE` FROM `INFORMATION_SCHEMA`.`USER_PRIVILEGES`) t WHERE `IS_GRANTABLE` = 'YES' AND '''root''@''%''' LIKE `GRANTEE` LIMIT 1
+		    18 Quit	
+		    17 Quit	
+		    19 Connect	root@172.150.0.4 on  using TCP/IP
+		    19 Query	SELECT @@version, @@version_comment
+		    19 Query	SET NAMES 'utf8mb4' COLLATE 'utf8mb4_general_ci'
+		    19 Query	SET lc_messages = 'en_US'
+		    20 Connect	root@172.150.0.4 on  using TCP/IP
+		    20 Query	SHOW TABLES FROM `phpmyadmin`
+		    19 Query	SET collation_connection = 'utf8mb4_unicode_ci'
+		    20 Query	SHOW TABLES FROM `phpmyadmin`
+		    19 Query	SELECT 1 FROM mysql.user LIMIT 1
+		    19 Query	SELECT CURRENT_USER()
+		    19 Query	SELECT 1 FROM (SELECT `GRANTEE`, `IS_GRANTABLE` FROM `INFORMATION_SCHEMA`.`COLUMN_PRIVILEGES` UNION SELECT `GRANTEE`, `IS_GRANTABLE` FROM `INFORMATION_SCHEMA`.`TABLE_PRIVILEGES` UNION SELECT `GRANTEE`, `IS_GRANTABLE` FROM `INFORMATION_SCHEMA`.`SCHEMA_PRIVILEGES` UNION SELECT `GRANTEE`, `IS_GRANTABLE` FROM `INFORMATION_SCHEMA`.`USER_PRIVILEGES`) t WHERE `IS_GRANTABLE` = 'YES' AND '''root''@''%''' LIKE `GRANTEE` LIMIT 1
+		    20 Quit	
+		    19 Quit	
+241023 10:04:06	    21 Connect	root@172.150.0.4 on  using TCP/IP
+		    21 Query	SELECT @@version, @@version_comment
+		    21 Query	SET NAMES 'utf8mb4' COLLATE 'utf8mb4_general_ci'
+		    21 Query	SET lc_messages = 'en_US'
+		    22 Connect	root@172.150.0.4 on  using TCP/IP
+		    22 Query	SHOW TABLES FROM `phpmyadmin`
+		    21 Query	SET collation_connection = 'utf8mb4_unicode_ci'
+		    22 Query	SHOW TABLES FROM `phpmyadmin`
+		    22 Quit	
+		    21 Quit	
+241023 10:04:09	    23 Connect	root@172.150.0.4 on  using TCP/IP
+		    23 Query	SELECT @@version, @@version_comment
+		    23 Query	SET NAMES 'utf8mb4' COLLATE 'utf8mb4_general_ci'
+		    23 Query	SET lc_messages = 'en_US'
+		    24 Connect	root@172.150.0.4 on  using TCP/IP
+		    24 Query	SHOW TABLES FROM `phpmyadmin`
+		    24 Query	SHOW TABLES FROM `logs_db`
+		    23 Query	SET collation_connection = 'utf8mb4_unicode_ci'
+		    24 Query	SHOW TABLES FROM `phpmyadmin`
+		    24 Query	SHOW TABLES FROM `logs_db`
+		    23 Query	SHOW TABLES FROM `logs_db`
+		    23 Query	SHOW  COLUMNS FROM `logs_db`.`apache_logs`
+		    23 Query	SHOW INDEXES FROM `logs_db`.`apache_logs`
+		    23 Query	SHOW  COLUMNS FROM `logs_db`.`mariadb_error_logs`
+		    23 Query	SHOW INDEXES FROM `logs_db`.`mariadb_error_logs`
+		    23 Query	SHOW  COLUMNS FROM `logs_db`.`mariadb_system_logs`
+		    23 Query	SHOW INDEXES FROM `logs_db`.`mariadb_system_logs`
+		    23 Query	SHOW  COLUMNS FROM `logs_db`.`wordpress_system_logs`
+		    23 Query	SHOW INDEXES FROM `logs_db`.`wordpress_system_logs`
+		    23 Query	SHOW TABLES FROM `logs_db`
+		    23 Query	SELECT 1 FROM mysql.user LIMIT 1
+		    23 Query	SELECT CURRENT_USER()
+		    23 Query	SELECT 1 FROM (SELECT `GRANTEE`, `IS_GRANTABLE` FROM `INFORMATION_SCHEMA`.`COLUMN_PRIVILEGES` UNION SELECT `GRANTEE`, `IS_GRANTABLE` FROM `INFORMATION_SCHEMA`.`TABLE_PRIVILEGES` UNION SELECT `GRANTEE`, `IS_GRANTABLE` FROM `INFORMATION_SCHEMA`.`SCHEMA_PRIVILEGES` UNION SELECT `GRANTEE`, `IS_GRANTABLE` FROM `INFORMATION_SCHEMA`.`USER_PRIVILEGES`) t WHERE `IS_GRANTABLE` = 'YES' AND '''root''@''%''' LIKE `GRANTEE` LIMIT 1
+		    23 Query	SELECT `PRIVILEGE_TYPE` FROM `INFORMATION_SCHEMA`.`USER_PRIVILEGES` WHERE GRANTEE='''root''@''%''' AND PRIVILEGE_TYPE='EVENT'
+		    23 Query	SELECT `PRIVILEGE_TYPE` FROM `INFORMATION_SCHEMA`.`USER_PRIVILEGES` WHERE GRANTEE='''root''@''%''' AND PRIVILEGE_TYPE='TRIGGER'
+		    24 Quit	
+		    23 Quit	
+241023 10:04:11	    25 Connect	root@172.150.0.4 on  using TCP/IP
+		    25 Query	SELECT @@version, @@version_comment
+		    25 Query	SET NAMES 'utf8mb4' COLLATE 'utf8mb4_general_ci'
+		    25 Query	SET lc_messages = 'en_US'
+		    26 Connect	root@172.150.0.4 on  using TCP/IP
+		    26 Query	SHOW TABLES FROM `phpmyadmin`
+		    25 Query	SET collation_connection = 'utf8mb4_unicode_ci'
+		    26 Query	SHOW TABLES FROM `phpmyadmin`
+		    26 Quit	
+		    25 Quit	
+241023 10:04:12	    27 Connect	root@172.150.0.4 on  using TCP/IP
+		    27 Query	SELECT @@version, @@version_comment
+		    27 Query	SET NAMES 'utf8mb4' COLLATE 'utf8mb4_general_ci'
+		    27 Query	SET lc_messages = 'en_US'
+		    28 Connect	root@172.150.0.4 on  using TCP/IP
+		    28 Query	SHOW TABLES FROM `phpmyadmin`
+		    27 Query	SET collation_connection = 'utf8mb4_unicode_ci'
+		    28 Query	SHOW TABLES FROM `phpmyadmin`
+		    28 Quit	
+		    27 Quit	
+241023 10:04:13	    29 Connect	root@172.150.0.4 on  using TCP/IP
+		    29 Query	SELECT @@version, @@version_comment
+		    29 Query	SET NAMES 'utf8mb4' COLLATE 'utf8mb4_general_ci'
+		    29 Query	SET lc_messages = 'en_US'
+		    30 Connect	root@172.150.0.4 on  using TCP/IP
+		    30 Query	SHOW TABLES FROM `phpmyadmin`
+		    29 Query	SET collation_connection = 'utf8mb4_unicode_ci'
+		    30 Query	SHOW TABLES FROM `phpmyadmin`
+		    30 Quit	
+		    29 Quit	
+		    31 Connect	root@172.150.0.4 on  using TCP/IP
+		    31 Query	SELECT @@version, @@version_comment
+		    31 Query	SET NAMES 'utf8mb4' COLLATE 'utf8mb4_general_ci'
+		    31 Query	SET lc_messages = 'en_US'
+		    32 Connect	root@172.150.0.4 on  using TCP/IP
+		    32 Query	SHOW TABLES FROM `phpmyadmin`
+		    31 Query	SET collation_connection = 'utf8mb4_unicode_ci'
+		    32 Query	SHOW TABLES FROM `phpmyadmin`
+		    32 Quit	
+		    31 Quit	
+241023 10:04:15	    33 Connect	root@172.150.0.4 on  using TCP/IP
+		    33 Query	SELECT @@version, @@version_comment
+		    33 Query	SET NAMES 'utf8mb4' COLLATE 'utf8mb4_general_ci'
+		    33 Query	SET lc_messages = 'en_US'
+		    34 Connect	root@172.150.0.4 on  using TCP/IP
+		    34 Query	SHOW TABLES FROM `phpmyadmin`
+		    33 Query	SET collation_connection = 'utf8mb4_unicode_ci'
+		    34 Query	SHOW TABLES FROM `phpmyadmin`
+		    34 Quit	
+		    33 Quit	
+241023 10:04:16	    35 Connect	root@172.150.0.4 on  using TCP/IP
+		    35 Query	SELECT @@version, @@version_comment
+		    35 Query	SET NAMES 'utf8mb4' COLLATE 'utf8mb4_general_ci'
+		    35 Query	SET lc_messages = 'en_US'
+		    36 Connect	root@172.150.0.4 on  using TCP/IP
+		    36 Query	SHOW TABLES FROM `phpmyadmin`
+		    35 Query	SET collation_connection = 'utf8mb4_unicode_ci'
+		    36 Query	SHOW TABLES FROM `phpmyadmin`
+		    36 Quit	
+		    35 Quit	
+241023 10:04:20	    37 Connect	root@172.150.0.4 on  using TCP/IP
+		    37 Query	SELECT @@version, @@version_comment
+		    37 Query	SET NAMES 'utf8mb4' COLLATE 'utf8mb4_general_ci'
+		    37 Query	SET lc_messages = 'en_US'
+		    38 Connect	root@172.150.0.4 on  using TCP/IP
+		    38 Query	SHOW TABLES FROM `phpmyadmin`
+		    38 Query	SHOW TABLES FROM `logs_db`
+		    37 Query	SET collation_connection = 'utf8mb4_unicode_ci'
+		    38 Query	SHOW TABLES FROM `phpmyadmin`
+		    38 Query	SHOW TABLES FROM `logs_db`
+		    37 Query	SELECT CURRENT_USER()
+		    37 Init DB	logs_db
+		    37 Query	SHOW SESSION VARIABLES LIKE 'FOREIGN_KEY_CHECKS'
+		    37 Query	SHOW SESSION VARIABLES LIKE 'FOREIGN_KEY_CHECKS'
+		    37 Query	SHOW SESSION VARIABLES LIKE 'FOREIGN_KEY_CHECKS'
+		    37 Query	SELECT 1 FROM mysql.user LIMIT 1
+		    37 Query	SHOW SESSION VARIABLES LIKE 'FOREIGN_KEY_CHECKS'
+		    37 Query	SHOW SESSION VARIABLES LIKE 'FOREIGN_KEY_CHECKS'
+		    37 Query	SELECT DATABASE()
+		    37 Init DB	logs_db
+		    37 Query	SELECT SLEEP(3)
+241023 10:04:23	    37 Query	SHOW WARNINGS
+		    37 Query	SELECT @@lower_case_table_names
+		    37 Query	SHOW  COLUMNS FROM `logs_db`.`mariadb_system_logs`
+		    37 Query	SHOW INDEXES FROM `logs_db`.`mariadb_system_logs`
+		    37 Query	SELECT TABLE_NAME FROM information_schema.VIEWS WHERE TABLE_SCHEMA = 'logs_db' AND TABLE_NAME = 'mariadb_system_logs'
+		    37 Query	SELECT TABLE_NAME FROM information_schema.VIEWS WHERE TABLE_SCHEMA = 'logs_db' AND TABLE_NAME = 'mariadb_system_logs'
+		    37 Query	SELECT @@have_profiling
+		    37 Query	SHOW CREATE TABLE `logs_db`.`mariadb_system_logs`
+		    37 Query	SHOW SESSION VARIABLES LIKE 'FOREIGN_KEY_CHECKS'
+		    37 Query	SHOW  COLUMNS FROM `logs_db`.`mariadb_system_logs`
+		    37 Query	SELECT TABLE_NAME FROM information_schema.VIEWS WHERE TABLE_SCHEMA = 'logs_db' AND TABLE_NAME = 'mariadb_system_logs'
+		    37 Query	SELECT *, `TABLE_SCHEMA`       AS `Db`, `TABLE_NAME`         AS `Name`, `TABLE_TYPE`         AS `TABLE_TYPE`, `ENGINE`             AS `Engine`, `ENGINE`             AS `Type`, `VERSION`            AS `Version`, `ROW_FORMAT`         AS `Row_format`, `TABLE_ROWS`         AS `Rows`, `AVG_ROW_LENGTH`     AS `Avg_row_length`, `DATA_LENGTH`        AS `Data_length`, `MAX_DATA_LENGTH`    AS `Max_data_length`, `INDEX_LENGTH`       AS `Index_length`, `DATA_FREE`          AS `Data_free`, `AUTO_INCREMENT`     AS `Auto_increment`, `CREATE_TIME`        AS `Create_time`, `UPDATE_TIME`        AS `Update_time`, `CHECK_TIME`         AS `Check_time`, `TABLE_COLLATION`    AS `Collation`, `CHECKSUM`           AS `Checksum`, `CREATE_OPTIONS`     AS `Create_options`, `TABLE_COMMENT`      AS `Comment` FROM `information_schema`.`TABLES` t WHERE `TABLE_SCHEMA`  IN ('logs_db') AND t.`TABLE_NAME`  = 'mariadb_system_logs' ORDER BY Name ASC
+		    37 Query	SELECT 1 FROM (SELECT `GRANTEE`, `IS_GRANTABLE` FROM `INFORMATION_SCHEMA`.`COLUMN_PRIVILEGES` UNION SELECT `GRANTEE`, `IS_GRANTABLE` FROM `INFORMATION_SCHEMA`.`TABLE_PRIVILEGES` UNION SELECT `GRANTEE`, `IS_GRANTABLE` FROM `INFORMATION_SCHEMA`.`SCHEMA_PRIVILEGES` UNION SELECT `GRANTEE`, `IS_GRANTABLE` FROM `INFORMATION_SCHEMA`.`USER_PRIVILEGES`) t WHERE `IS_GRANTABLE` = 'YES' AND '''root''@''%''' LIKE `GRANTEE` LIMIT 1
+		    37 Query	SELECT `PRIVILEGE_TYPE` FROM `INFORMATION_SCHEMA`.`USER_PRIVILEGES` WHERE GRANTEE='''root''@''%''' AND PRIVILEGE_TYPE='TRIGGER'
+		    38 Quit	
+		    37 Quit	
+241023 10:04:29	    39 Connect	root@172.150.0.4 on  using TCP/IP
+		    39 Query	SELECT @@version, @@version_comment
+		    39 Query	SET NAMES 'utf8mb4' COLLATE 'utf8mb4_general_ci'
+		    39 Query	SET lc_messages = 'en_US'
+		    40 Connect	root@172.150.0.4 on  using TCP/IP
+		    40 Query	SHOW TABLES FROM `phpmyadmin`
+		    39 Query	SET collation_connection = 'utf8mb4_unicode_ci'
+		    40 Query	SHOW TABLES FROM `phpmyadmin`
+		    40 Quit	
+		    39 Quit	
+		    41 Connect	root@172.150.0.4 on  using TCP/IP
+		    41 Query	SELECT @@version, @@version_comment
+		    41 Query	SET NAMES 'utf8mb4' COLLATE 'utf8mb4_general_ci'
+		    41 Query	SET lc_messages = 'en_US'
+		    42 Connect	root@172.150.0.4 on  using TCP/IP
+		    42 Query	SHOW TABLES FROM `phpmyadmin`
+		    41 Query	SET collation_connection = 'utf8mb4_unicode_ci'
+		    42 Query	SHOW TABLES FROM `phpmyadmin`
+		    42 Quit	
+		    41 Quit	
+241023 10:04:34	    43 Connect	root@172.150.0.4 on  using TCP/IP
+		    43 Query	SELECT @@version, @@version_comment
+		    43 Query	SET NAMES 'utf8mb4' COLLATE 'utf8mb4_general_ci'
+		    43 Query	SET lc_messages = 'en_US'
+		    44 Connect	root@172.150.0.4 on  using TCP/IP
+		    44 Query	SHOW TABLES FROM `phpmyadmin`
+		    44 Query	SHOW TABLES FROM `logs_db`
+		    43 Query	SET collation_connection = 'utf8mb4_unicode_ci'
+		    44 Query	SHOW TABLES FROM `phpmyadmin`
+		    44 Query	SHOW TABLES FROM `logs_db`
+		    43 Query	SELECT CURRENT_USER()
+		    43 Init DB	logs_db
+		    43 Query	SHOW SESSION VARIABLES LIKE 'FOREIGN_KEY_CHECKS'
+		    43 Query	SHOW SESSION VARIABLES LIKE 'FOREIGN_KEY_CHECKS'
+		    43 Query	SHOW SESSION VARIABLES LIKE 'FOREIGN_KEY_CHECKS'
+		    43 Query	SELECT 1 FROM mysql.user LIMIT 1
+		    43 Query	SHOW SESSION VARIABLES LIKE 'FOREIGN_KEY_CHECKS'
+		    43 Query	SHOW SESSION VARIABLES LIKE 'FOREIGN_KEY_CHECKS'
+		    43 Query	SELECT DATABASE()
+		    43 Init DB	logs_db
+		    43 Query	SELECT SLEEP(10)
+241023 10:04:44	    43 Query	SHOW WARNINGS
+		    43 Query	SELECT @@lower_case_table_names
+		    43 Query	SHOW  COLUMNS FROM `logs_db`.`mariadb_system_logs`
+		    43 Query	SHOW INDEXES FROM `logs_db`.`mariadb_system_logs`
+		    43 Query	SELECT TABLE_NAME FROM information_schema.VIEWS WHERE TABLE_SCHEMA = 'logs_db' AND TABLE_NAME = 'mariadb_system_logs'
+		    43 Query	SELECT TABLE_NAME FROM information_schema.VIEWS WHERE TABLE_SCHEMA = 'logs_db' AND TABLE_NAME = 'mariadb_system_logs'
+		    43 Query	SHOW CREATE TABLE `logs_db`.`mariadb_system_logs`
+		    43 Query	SHOW SESSION VARIABLES LIKE 'FOREIGN_KEY_CHECKS'
+		    43 Query	SHOW  COLUMNS FROM `logs_db`.`mariadb_system_logs`
+		    43 Query	SELECT TABLE_NAME FROM information_schema.VIEWS WHERE TABLE_SCHEMA = 'logs_db' AND TABLE_NAME = 'mariadb_system_logs'
+		    43 Query	SELECT *, `TABLE_SCHEMA`       AS `Db`, `TABLE_NAME`         AS `Name`, `TABLE_TYPE`         AS `TABLE_TYPE`, `ENGINE`             AS `Engine`, `ENGINE`             AS `Type`, `VERSION`            AS `Version`, `ROW_FORMAT`         AS `Row_format`, `TABLE_ROWS`         AS `Rows`, `AVG_ROW_LENGTH`     AS `Avg_row_length`, `DATA_LENGTH`        AS `Data_length`, `MAX_DATA_LENGTH`    AS `Max_data_length`, `INDEX_LENGTH`       AS `Index_length`, `DATA_FREE`          AS `Data_free`, `AUTO_INCREMENT`     AS `Auto_increment`, `CREATE_TIME`        AS `Create_time`, `UPDATE_TIME`        AS `Update_time`, `CHECK_TIME`         AS `Check_time`, `TABLE_COLLATION`    AS `Collation`, `CHECKSUM`           AS `Checksum`, `CREATE_OPTIONS`     AS `Create_options`, `TABLE_COMMENT`      AS `Comment` FROM `information_schema`.`TABLES` t WHERE `TABLE_SCHEMA`  IN ('logs_db') AND t.`TABLE_NAME`  = 'mariadb_system_logs' ORDER BY Name ASC
+		    43 Query	SELECT 1 FROM (SELECT `GRANTEE`, `IS_GRANTABLE` FROM `INFORMATION_SCHEMA`.`COLUMN_PRIVILEGES` UNION SELECT `GRANTEE`, `IS_GRANTABLE` FROM `INFORMATION_SCHEMA`.`TABLE_PRIVILEGES` UNION SELECT `GRANTEE`, `IS_GRANTABLE` FROM `INFORMATION_SCHEMA`.`SCHEMA_PRIVILEGES` UNION SELECT `GRANTEE`, `IS_GRANTABLE` FROM `INFORMATION_SCHEMA`.`USER_PRIVILEGES`) t WHERE `IS_GRANTABLE` = 'YES' AND '''root''@''%''' LIKE `GRANTEE` LIMIT 1
+		    43 Query	SELECT `PRIVILEGE_TYPE` FROM `INFORMATION_SCHEMA`.`USER_PRIVILEGES` WHERE GRANTEE='''root''@''%''' AND PRIVILEGE_TYPE='TRIGGER'
+		    44 Quit	
+		    43 Quit	
+241023 10:08:06	    45 Connect	root@172.150.0.4 on  using TCP/IP
+		    45 Query	SELECT @@version, @@version_comment
+		    45 Query	SET NAMES 'utf8mb4' COLLATE 'utf8mb4_general_ci'
+		    45 Query	SET lc_messages = 'en_US'
+		    46 Connect	root@172.150.0.4 on  using TCP/IP
+		    46 Query	SHOW TABLES FROM `phpmyadmin`
+		    45 Query	SET collation_connection = 'utf8mb4_unicode_ci'
+		    46 Query	SHOW TABLES FROM `phpmyadmin`
+		    46 Quit	
+		    45 Quit	
+241023 10:08:10	    47 Connect	root@172.150.0.4 on  using TCP/IP
+		    47 Query	SELECT @@version, @@version_comment
+		    47 Query	SET NAMES 'utf8mb4' COLLATE 'utf8mb4_general_ci'
+		    47 Query	SET lc_messages = 'en_US'
+		    48 Connect	root@172.150.0.4 on  using TCP/IP
+		    48 Query	SHOW TABLES FROM `phpmyadmin`
+		    48 Query	SHOW TABLES FROM `logs_db`
+		    47 Query	SET collation_connection = 'utf8mb4_unicode_ci'
+		    48 Query	SHOW TABLES FROM `phpmyadmin`
+		    48 Query	SHOW TABLES FROM `logs_db`
+		    47 Query	SELECT CURRENT_USER()
+		    47 Init DB	logs_db
+		    47 Query	SHOW SESSION VARIABLES LIKE 'FOREIGN_KEY_CHECKS'
+		    47 Query	SHOW SESSION VARIABLES LIKE 'FOREIGN_KEY_CHECKS'
+		    47 Query	SHOW SESSION VARIABLES LIKE 'FOREIGN_KEY_CHECKS'
+		    47 Query	SELECT 1 FROM mysql.user LIMIT 1
+		    47 Query	SHOW SESSION VARIABLES LIKE 'FOREIGN_KEY_CHECKS'
+		    47 Query	SHOW SESSION VARIABLES LIKE 'FOREIGN_KEY_CHECKS'
+		    47 Query	SELECT DATABASE()
+		    47 Init DB	logs_db
+		    47 Query	SET GLOBAL slow_query_log = 'ON'
+		    47 Query	SHOW WARNINGS
+		    47 Query	SHOW SESSION VARIABLES LIKE 'FOREIGN_KEY_CHECKS'
+		    47 Query	SHOW  COLUMNS FROM `logs_db`.`mariadb_system_logs`
+		    47 Query	SHOW INDEXES FROM `logs_db`.`mariadb_system_logs`
+		    47 Query	SELECT TABLE_NAME FROM information_schema.VIEWS WHERE TABLE_SCHEMA = 'logs_db' AND TABLE_NAME = 'mariadb_system_logs'
+		    47 Query	SELECT @@lower_case_table_names
+		    47 Query	SELECT *, `TABLE_SCHEMA`       AS `Db`, `TABLE_NAME`         AS `Name`, `TABLE_TYPE`         AS `TABLE_TYPE`, `ENGINE`             AS `Engine`, `ENGINE`             AS `Type`, `VERSION`            AS `Version`, `ROW_FORMAT`         AS `Row_format`, `TABLE_ROWS`         AS `Rows`, `AVG_ROW_LENGTH`     AS `Avg_row_length`, `DATA_LENGTH`        AS `Data_length`, `MAX_DATA_LENGTH`    AS `Max_data_length`, `INDEX_LENGTH`       AS `Index_length`, `DATA_FREE`          AS `Data_free`, `AUTO_INCREMENT`     AS `Auto_increment`, `CREATE_TIME`        AS `Create_time`, `UPDATE_TIME`        AS `Update_time`, `CHECK_TIME`         AS `Check_time`, `TABLE_COLLATION`    AS `Collation`, `CHECKSUM`           AS `Checksum`, `CREATE_OPTIONS`     AS `Create_options`, `TABLE_COMMENT`      AS `Comment` FROM `information_schema`.`TABLES` t WHERE `TABLE_SCHEMA`  IN ('logs_db') AND t.`TABLE_NAME`  = 'mariadb_system_logs' ORDER BY Name ASC
+		    47 Query	SELECT 1 FROM (SELECT `GRANTEE`, `IS_GRANTABLE` FROM `INFORMATION_SCHEMA`.`COLUMN_PRIVILEGES` UNION SELECT `GRANTEE`, `IS_GRANTABLE` FROM `INFORMATION_SCHEMA`.`TABLE_PRIVILEGES` UNION SELECT `GRANTEE`, `IS_GRANTABLE` FROM `INFORMATION_SCHEMA`.`SCHEMA_PRIVILEGES` UNION SELECT `GRANTEE`, `IS_GRANTABLE` FROM `INFORMATION_SCHEMA`.`USER_PRIVILEGES`) t WHERE `IS_GRANTABLE` = 'YES' AND '''root''@''%''' LIKE `GRANTEE` LIMIT 1
+		    47 Query	SELECT `PRIVILEGE_TYPE` FROM `INFORMATION_SCHEMA`.`USER_PRIVILEGES` WHERE GRANTEE='''root''@''%''' AND PRIVILEGE_TYPE='TRIGGER'
+		    48 Quit	
+		    47 Quit	
+241023 10:08:23	    49 Connect	root@172.150.0.4 on  using TCP/IP
+		    49 Query	SELECT @@version, @@version_comment
+		    49 Query	SET NAMES 'utf8mb4' COLLATE 'utf8mb4_general_ci'
+		    49 Query	SET lc_messages = 'en_US'
+		    50 Connect	root@172.150.0.4 on  using TCP/IP
+		    50 Query	SHOW TABLES FROM `phpmyadmin`
+		    49 Query	SET collation_connection = 'utf8mb4_unicode_ci'
+		    50 Query	SHOW TABLES FROM `phpmyadmin`
+		    50 Quit	
+		    49 Quit	
+241023 10:08:26	    51 Connect	root@172.150.0.4 on  using TCP/IP
+		    51 Query	SELECT @@version, @@version_comment
+		    51 Query	SET NAMES 'utf8mb4' COLLATE 'utf8mb4_general_ci'
+		    51 Query	SET lc_messages = 'en_US'
+		    52 Connect	root@172.150.0.4 on  using TCP/IP
+		    52 Query	SHOW TABLES FROM `phpmyadmin`
+		    52 Query	SHOW TABLES FROM `logs_db`
+		    51 Query	SET collation_connection = 'utf8mb4_unicode_ci'
+		    52 Query	SHOW TABLES FROM `phpmyadmin`
+		    52 Query	SHOW TABLES FROM `logs_db`
+		    51 Query	SELECT CURRENT_USER()
+		    51 Init DB	logs_db
+		    51 Query	SHOW SESSION VARIABLES LIKE 'FOREIGN_KEY_CHECKS'
+		    51 Query	SHOW SESSION VARIABLES LIKE 'FOREIGN_KEY_CHECKS'
+		    51 Query	SHOW SESSION VARIABLES LIKE 'FOREIGN_KEY_CHECKS'
+		    51 Query	SELECT 1 FROM mysql.user LIMIT 1
+		    51 Query	SHOW SESSION VARIABLES LIKE 'FOREIGN_KEY_CHECKS'
+		    51 Query	SHOW SESSION VARIABLES LIKE 'FOREIGN_KEY_CHECKS'
+		    51 Query	SELECT DATABASE()
+		    51 Init DB	logs_db
+		    51 Query	SHOW VARIABLES LIKE 'slow_query_log'
+		    51 Query	SHOW WARNINGS
+		    51 Query	SELECT @@lower_case_table_names
+		    51 Query	SHOW  COLUMNS FROM `logs_db`.`mariadb_system_logs`
+		    51 Query	SHOW INDEXES FROM `logs_db`.`mariadb_system_logs`
+		    51 Query	SHOW CREATE TABLE `logs_db`.`mariadb_system_logs`
+		    51 Query	SHOW SESSION VARIABLES LIKE 'FOREIGN_KEY_CHECKS'
+		    51 Query	SHOW SESSION VARIABLES LIKE 'FOREIGN_KEY_CHECKS'
+		    51 Query	SHOW SESSION VARIABLES LIKE 'FOREIGN_KEY_CHECKS'
+		    51 Query	SELECT DATABASE()
+		    51 Init DB	logs_db
+		    51 Query	SHOW VARIABLES LIKE 'slow_query_log_file'
+		    51 Query	SHOW WARNINGS
+		    51 Query	SHOW  COLUMNS FROM `logs_db`.`mariadb_system_logs`
+		    51 Query	SHOW CREATE TABLE `logs_db`.`mariadb_system_logs`
+		    51 Query	SHOW SESSION VARIABLES LIKE 'FOREIGN_KEY_CHECKS'
+		    51 Query	SHOW SESSION VARIABLES LIKE 'FOREIGN_KEY_CHECKS'
+		    51 Query	SHOW SESSION VARIABLES LIKE 'FOREIGN_KEY_CHECKS'
+		    51 Query	SELECT DATABASE()
+		    51 Init DB	logs_db
+		    51 Query	SHOW VARIABLES LIKE 'long_query_time'
+		    51 Query	SHOW WARNINGS
+		    51 Query	SHOW  COLUMNS FROM `logs_db`.`mariadb_system_logs`
+		    51 Query	SHOW CREATE TABLE `logs_db`.`mariadb_system_logs`
+		    51 Query	SHOW SESSION VARIABLES LIKE 'FOREIGN_KEY_CHECKS'
+		    51 Query	SHOW  COLUMNS FROM `logs_db`.`mariadb_system_logs`
+		    51 Query	SELECT TABLE_NAME FROM information_schema.VIEWS WHERE TABLE_SCHEMA = 'logs_db' AND TABLE_NAME = 'mariadb_system_logs'
+		    51 Query	SELECT *, `TABLE_SCHEMA`       AS `Db`, `TABLE_NAME`         AS `Name`, `TABLE_TYPE`         AS `TABLE_TYPE`, `ENGINE`             AS `Engine`, `ENGINE`             AS `Type`, `VERSION`            AS `Version`, `ROW_FORMAT`         AS `Row_format`, `TABLE_ROWS`         AS `Rows`, `AVG_ROW_LENGTH`     AS `Avg_row_length`, `DATA_LENGTH`        AS `Data_length`, `MAX_DATA_LENGTH`    AS `Max_data_length`, `INDEX_LENGTH`       AS `Index_length`, `DATA_FREE`          AS `Data_free`, `AUTO_INCREMENT`     AS `Auto_increment`, `CREATE_TIME`        AS `Create_time`, `UPDATE_TIME`        AS `Update_time`, `CHECK_TIME`         AS `Check_time`, `TABLE_COLLATION`    AS `Collation`, `CHECKSUM`           AS `Checksum`, `CREATE_OPTIONS`     AS `Create_options`, `TABLE_COMMENT`      AS `Comment` FROM `information_schema`.`TABLES` t WHERE `TABLE_SCHEMA`  IN ('logs_db') AND t.`TABLE_NAME`  = 'mariadb_system_logs' ORDER BY Name ASC
+		    51 Query	SELECT 1 FROM (SELECT `GRANTEE`, `IS_GRANTABLE` FROM `INFORMATION_SCHEMA`.`COLUMN_PRIVILEGES` UNION SELECT `GRANTEE`, `IS_GRANTABLE` FROM `INFORMATION_SCHEMA`.`TABLE_PRIVILEGES` UNION SELECT `GRANTEE`, `IS_GRANTABLE` FROM `INFORMATION_SCHEMA`.`SCHEMA_PRIVILEGES` UNION SELECT `GRANTEE`, `IS_GRANTABLE` FROM `INFORMATION_SCHEMA`.`USER_PRIVILEGES`) t WHERE `IS_GRANTABLE` = 'YES' AND '''root''@''%''' LIKE `GRANTEE` LIMIT 1
+		    51 Query	SELECT `PRIVILEGE_TYPE` FROM `INFORMATION_SCHEMA`.`USER_PRIVILEGES` WHERE GRANTEE='''root''@''%''' AND PRIVILEGE_TYPE='TRIGGER'
+		    52 Quit	
+		    51 Quit	
+241023 10:09:23	    53 Connect	root@172.150.0.4 on  using TCP/IP
+		    53 Query	SELECT @@version, @@version_comment
+		    53 Query	SET NAMES 'utf8mb4' COLLATE 'utf8mb4_general_ci'
+		    53 Query	SET lc_messages = 'en_US'
+		    54 Connect	root@172.150.0.4 on  using TCP/IP
+		    54 Query	SHOW TABLES FROM `phpmyadmin`
+		    53 Query	SET collation_connection = 'utf8mb4_unicode_ci'
+		    54 Query	SHOW TABLES FROM `phpmyadmin`
+		    54 Quit	
+		    53 Quit	
+241023 10:09:27	    55 Connect	root@172.150.0.4 on  using TCP/IP
+		    55 Query	SELECT @@version, @@version_comment
+		    55 Query	SET NAMES 'utf8mb4' COLLATE 'utf8mb4_general_ci'
+		    55 Query	SET lc_messages = 'en_US'
+		    56 Connect	root@172.150.0.4 on  using TCP/IP
+		    56 Query	SHOW TABLES FROM `phpmyadmin`
+		    55 Query	SET collation_connection = 'utf8mb4_unicode_ci'
+		    56 Query	SHOW TABLES FROM `phpmyadmin`
+		    56 Quit	
+		    55 Quit	
+241023 10:09:35	    57 Connect	root@172.150.0.4 on  using TCP/IP
+		    57 Query	SELECT @@version, @@version_comment
+		    57 Query	SET NAMES 'utf8mb4' COLLATE 'utf8mb4_general_ci'
+		    57 Query	SET lc_messages = 'en_US'
+		    58 Connect	root@172.150.0.4 on  using TCP/IP
+		    58 Query	SHOW TABLES FROM `phpmyadmin`
+		    58 Query	SHOW TABLES FROM `logs_db`
+		    57 Query	SET collation_connection = 'utf8mb4_unicode_ci'
+		    58 Query	SHOW TABLES FROM `phpmyadmin`
+		    58 Query	SHOW TABLES FROM `logs_db`
+		    57 Query	SELECT CURRENT_USER()
+		    57 Init DB	logs_db
+		    57 Query	SHOW SESSION VARIABLES LIKE 'FOREIGN_KEY_CHECKS'
+		    57 Query	SHOW SESSION VARIABLES LIKE 'FOREIGN_KEY_CHECKS'
+		    57 Query	SHOW SESSION VARIABLES LIKE 'FOREIGN_KEY_CHECKS'
+		    57 Query	SELECT 1 FROM mysql.user LIMIT 1
+		    57 Query	SHOW SESSION VARIABLES LIKE 'FOREIGN_KEY_CHECKS'
+		    57 Query	SHOW SESSION VARIABLES LIKE 'FOREIGN_KEY_CHECKS'
+		    57 Query	SELECT DATABASE()
+		    57 Init DB	logs_db
+		    57 Query	SHOW VARIABLES LIKE 'slow_query_log'
+		    57 Query	SHOW WARNINGS
+		    57 Query	SELECT @@lower_case_table_names
+		    57 Query	SHOW  COLUMNS FROM `logs_db`.`mariadb_system_logs`
+		    57 Query	SHOW INDEXES FROM `logs_db`.`mariadb_system_logs`
+		    57 Query	SHOW CREATE TABLE `logs_db`.`mariadb_system_logs`
+		    57 Query	SHOW SESSION VARIABLES LIKE 'FOREIGN_KEY_CHECKS'
+		    57 Query	SHOW SESSION VARIABLES LIKE 'FOREIGN_KEY_CHECKS'
+		    57 Query	SHOW SESSION VARIABLES LIKE 'FOREIGN_KEY_CHECKS'
+		    57 Query	SELECT DATABASE()
+		    57 Init DB	logs_db
+		    57 Query	SELECT SLEEP(3)
+241023 10:09:38	    57 Query	SHOW WARNINGS
+		    57 Query	SHOW  COLUMNS FROM `logs_db`.`mariadb_system_logs`
+		    57 Query	SELECT TABLE_NAME FROM information_schema.VIEWS WHERE TABLE_SCHEMA = 'logs_db' AND TABLE_NAME = 'mariadb_system_logs'
+		    57 Query	SELECT TABLE_NAME FROM information_schema.VIEWS WHERE TABLE_SCHEMA = 'logs_db' AND TABLE_NAME = 'mariadb_system_logs'
+		    57 Query	SHOW CREATE TABLE `logs_db`.`mariadb_system_logs`
+		    57 Query	SHOW SESSION VARIABLES LIKE 'FOREIGN_KEY_CHECKS'
+		    57 Query	SHOW  COLUMNS FROM `logs_db`.`mariadb_system_logs`
+		    57 Query	SELECT TABLE_NAME FROM information_schema.VIEWS WHERE TABLE_SCHEMA = 'logs_db' AND TABLE_NAME = 'mariadb_system_logs'
+		    57 Query	SELECT *, `TABLE_SCHEMA`       AS `Db`, `TABLE_NAME`         AS `Name`, `TABLE_TYPE`         AS `TABLE_TYPE`, `ENGINE`             AS `Engine`, `ENGINE`             AS `Type`, `VERSION`            AS `Version`, `ROW_FORMAT`         AS `Row_format`, `TABLE_ROWS`         AS `Rows`, `AVG_ROW_LENGTH`     AS `Avg_row_length`, `DATA_LENGTH`        AS `Data_length`, `MAX_DATA_LENGTH`    AS `Max_data_length`, `INDEX_LENGTH`       AS `Index_length`, `DATA_FREE`          AS `Data_free`, `AUTO_INCREMENT`     AS `Auto_increment`, `CREATE_TIME`        AS `Create_time`, `UPDATE_TIME`        AS `Update_time`, `CHECK_TIME`         AS `Check_time`, `TABLE_COLLATION`    AS `Collation`, `CHECKSUM`           AS `Checksum`, `CREATE_OPTIONS`     AS `Create_options`, `TABLE_COMMENT`      AS `Comment` FROM `information_schema`.`TABLES` t WHERE `TABLE_SCHEMA`  IN ('logs_db') AND t.`TABLE_NAME`  = 'mariadb_system_logs' ORDER BY Name ASC
+		    57 Query	SELECT 1 FROM (SELECT `GRANTEE`, `IS_GRANTABLE` FROM `INFORMATION_SCHEMA`.`COLUMN_PRIVILEGES` UNION SELECT `GRANTEE`, `IS_GRANTABLE` FROM `INFORMATION_SCHEMA`.`TABLE_PRIVILEGES` UNION SELECT `GRANTEE`, `IS_GRANTABLE` FROM `INFORMATION_SCHEMA`.`SCHEMA_PRIVILEGES` UNION SELECT `GRANTEE`, `IS_GRANTABLE` FROM `INFORMATION_SCHEMA`.`USER_PRIVILEGES`) t WHERE `IS_GRANTABLE` = 'YES' AND '''root''@''%''' LIKE `GRANTEE` LIMIT 1
+		    57 Query	SELECT `PRIVILEGE_TYPE` FROM `INFORMATION_SCHEMA`.`USER_PRIVILEGES` WHERE GRANTEE='''root''@''%''' AND PRIVILEGE_TYPE='TRIGGER'
+		    58 Quit	
+		    57 Quit	
+241023 10:11:48	    59 Connect	root@172.150.0.4 on  using TCP/IP
+		    59 Query	SELECT @@version, @@version_comment
+		    59 Query	SET NAMES 'utf8mb4' COLLATE 'utf8mb4_general_ci'
+		    59 Query	SET lc_messages = 'en_US'
+		    60 Connect	root@172.150.0.4 on  using TCP/IP
+		    60 Query	SHOW TABLES FROM `phpmyadmin`
+		    60 Query	SHOW TABLES FROM `logs_db`
+		    59 Query	SET collation_connection = 'utf8mb4_unicode_ci'
+		    60 Query	SHOW TABLES FROM `phpmyadmin`
+		    60 Query	SHOW TABLES FROM `logs_db`
+		    59 Query	SELECT CURRENT_USER()
+		    59 Query	SELECT 1 FROM mysql.user LIMIT 1
+		    59 Query	SHOW SESSION VARIABLES LIKE 'FOREIGN_KEY_CHECKS'
+		    59 Query	SELECT DATABASE()
+		    59 Init DB	logs_db
+		    59 Query	SELECT * FROM `apache_logs` LIMIT 0, 25
+		    59 Query	SELECT TABLE_NAME FROM information_schema.VIEWS WHERE TABLE_SCHEMA = 'logs_db' AND TABLE_NAME = 'apache_logs'
+		    59 Query	SELECT @@lower_case_table_names
+		    59 Query	SELECT *, `TABLE_SCHEMA`       AS `Db`, `TABLE_NAME`         AS `Name`, `TABLE_TYPE`         AS `TABLE_TYPE`, `ENGINE`             AS `Engine`, `ENGINE`             AS `Type`, `VERSION`            AS `Version`, `ROW_FORMAT`         AS `Row_format`, `TABLE_ROWS`         AS `Rows`, `AVG_ROW_LENGTH`     AS `Avg_row_length`, `DATA_LENGTH`        AS `Data_length`, `MAX_DATA_LENGTH`    AS `Max_data_length`, `INDEX_LENGTH`       AS `Index_length`, `DATA_FREE`          AS `Data_free`, `AUTO_INCREMENT`     AS `Auto_increment`, `CREATE_TIME`        AS `Create_time`, `UPDATE_TIME`        AS `Update_time`, `CHECK_TIME`         AS `Check_time`, `TABLE_COLLATION`    AS `Collation`, `CHECKSUM`           AS `Checksum`, `CREATE_OPTIONS`     AS `Create_options`, `TABLE_COMMENT`      AS `Comment` FROM `information_schema`.`TABLES` t WHERE `TABLE_SCHEMA`  IN ('logs_db') AND t.`TABLE_NAME`  = 'apache_logs' ORDER BY Name ASC
+		    59 Query	SELECT COUNT(*) FROM `logs_db`.`apache_logs`
+		    59 Query	SHOW WARNINGS
+		    59 Query	SELECT TABLE_NAME FROM information_schema.VIEWS WHERE TABLE_SCHEMA = 'logs_db' AND TABLE_NAME = 'apache_logs' AND IS_UPDATABLE = 'YES'
+		    59 Query	SHOW  COLUMNS FROM `logs_db`.`apache_logs`
+		    59 Query	SHOW INDEXES FROM `logs_db`.`apache_logs`
+		    59 Query	SHOW CREATE TABLE `logs_db`.`apache_logs`
+		    59 Query	SHOW FULL COLUMNS FROM `logs_db`.`apache_logs`
+		    59 Query	SHOW SESSION VARIABLES LIKE 'FOREIGN_KEY_CHECKS'
+		    59 Query	SHOW  COLUMNS FROM `logs_db`.`apache_logs`
+		    59 Query	SELECT `SCHEMA_NAME` FROM `INFORMATION_SCHEMA`.`SCHEMATA`, (SELECT DB_first_level FROM ( SELECT DISTINCT SUBSTRING_INDEX(SCHEMA_NAME, '_', 1) DB_first_level FROM INFORMATION_SCHEMA.SCHEMATA WHERE TRUE ) t ORDER BY DB_first_level ASC LIMIT 0, 100) t2 WHERE TRUE AND 1 = LOCATE(CONCAT(DB_first_level, '_'), CONCAT(SCHEMA_NAME, '_')) ORDER BY SCHEMA_NAME ASC
+		    59 Query	SELECT COUNT(*) FROM ( SELECT DISTINCT SUBSTRING_INDEX(SCHEMA_NAME, '_', 1) DB_first_level FROM INFORMATION_SCHEMA.SCHEMATA WHERE TRUE ) t
+		    59 Query	SELECT COUNT(*) FROM ( SELECT DISTINCT SUBSTRING_INDEX(SCHEMA_NAME, '_', 1) DB_first_level FROM INFORMATION_SCHEMA.SCHEMATA WHERE TRUE ) t
+		    59 Query	SELECT 1 FROM (SELECT `GRANTEE`, `IS_GRANTABLE` FROM `INFORMATION_SCHEMA`.`COLUMN_PRIVILEGES` UNION SELECT `GRANTEE`, `IS_GRANTABLE` FROM `INFORMATION_SCHEMA`.`TABLE_PRIVILEGES` UNION SELECT `GRANTEE`, `IS_GRANTABLE` FROM `INFORMATION_SCHEMA`.`SCHEMA_PRIVILEGES` UNION SELECT `GRANTEE`, `IS_GRANTABLE` FROM `INFORMATION_SCHEMA`.`USER_PRIVILEGES`) t WHERE `IS_GRANTABLE` = 'YES' AND '''root''@''%''' LIKE `GRANTEE` LIMIT 1
+		    59 Query	SELECT `PRIVILEGE_TYPE` FROM `INFORMATION_SCHEMA`.`USER_PRIVILEGES` WHERE GRANTEE='''root''@''%''' AND PRIVILEGE_TYPE='TRIGGER'
+		    60 Quit	
+		    59 Quit	
+		    61 Connect	root@172.150.0.4 on  using TCP/IP
+		    61 Query	SELECT @@version, @@version_comment
+		    61 Query	SET NAMES 'utf8mb4' COLLATE 'utf8mb4_general_ci'
+		    61 Query	SET lc_messages = 'en_US'
+		    62 Connect	root@172.150.0.4 on  using TCP/IP
+		    62 Query	SHOW TABLES FROM `phpmyadmin`
+		    61 Query	SET collation_connection = 'utf8mb4_unicode_ci'
+		    62 Query	SHOW TABLES FROM `phpmyadmin`
+		    61 Query	SELECT 1 FROM mysql.user LIMIT 1
+		    61 Query	SELECT CURRENT_USER()
+		    61 Query	SELECT 1 FROM (SELECT `GRANTEE`, `IS_GRANTABLE` FROM `INFORMATION_SCHEMA`.`COLUMN_PRIVILEGES` UNION SELECT `GRANTEE`, `IS_GRANTABLE` FROM `INFORMATION_SCHEMA`.`TABLE_PRIVILEGES` UNION SELECT `GRANTEE`, `IS_GRANTABLE` FROM `INFORMATION_SCHEMA`.`SCHEMA_PRIVILEGES` UNION SELECT `GRANTEE`, `IS_GRANTABLE` FROM `INFORMATION_SCHEMA`.`USER_PRIVILEGES`) t WHERE `IS_GRANTABLE` = 'YES' AND '''root''@''%''' LIKE `GRANTEE` LIMIT 1
+		    62 Quit	
+		    61 Quit	
+		    63 Connect	root@172.150.0.4 on  using TCP/IP
+		    63 Query	SELECT @@version, @@version_comment
+		    63 Query	SET NAMES 'utf8mb4' COLLATE 'utf8mb4_general_ci'
+		    63 Query	SET lc_messages = 'en_US'
+		    64 Connect	root@172.150.0.4 on  using TCP/IP
+		    64 Query	SHOW TABLES FROM `phpmyadmin`
+		    63 Query	SET collation_connection = 'utf8mb4_unicode_ci'
+		    64 Query	SHOW TABLES FROM `phpmyadmin`
+		    63 Query	SELECT CURRENT_USER()
+		    63 Query	SELECT `SCHEMA_NAME` FROM `INFORMATION_SCHEMA`.`SCHEMATA`, (SELECT DB_first_level FROM ( SELECT DISTINCT SUBSTRING_INDEX(SCHEMA_NAME, '_', 1) DB_first_level FROM INFORMATION_SCHEMA.SCHEMATA WHERE TRUE ) t ORDER BY DB_first_level ASC LIMIT 0, 100) t2 WHERE TRUE AND 1 = LOCATE(CONCAT(DB_first_level, '_'), CONCAT(SCHEMA_NAME, '_')) ORDER BY SCHEMA_NAME ASC
+		    63 Query	SELECT COUNT(*) FROM ( SELECT DISTINCT SUBSTRING_INDEX(SCHEMA_NAME, '_', 1) DB_first_level FROM INFORMATION_SCHEMA.SCHEMATA WHERE TRUE ) t
+		    63 Query	SELECT COUNT(*) FROM ( SELECT DISTINCT SUBSTRING_INDEX(SCHEMA_NAME, '_', 1) DB_first_level FROM INFORMATION_SCHEMA.SCHEMATA WHERE TRUE ) t
+		    63 Query	SELECT 1 FROM mysql.user LIMIT 1
+		    63 Query	SELECT 1 FROM (SELECT `GRANTEE`, `IS_GRANTABLE` FROM `INFORMATION_SCHEMA`.`COLUMN_PRIVILEGES` UNION SELECT `GRANTEE`, `IS_GRANTABLE` FROM `INFORMATION_SCHEMA`.`TABLE_PRIVILEGES` UNION SELECT `GRANTEE`, `IS_GRANTABLE` FROM `INFORMATION_SCHEMA`.`SCHEMA_PRIVILEGES` UNION SELECT `GRANTEE`, `IS_GRANTABLE` FROM `INFORMATION_SCHEMA`.`USER_PRIVILEGES`) t WHERE `IS_GRANTABLE` = 'YES' AND '''root''@''%''' LIKE `GRANTEE` LIMIT 1
+		    64 Quit	
+		    63 Quit	
+		    65 Connect	root@172.150.0.4 on  using TCP/IP
+		    65 Query	SELECT @@version, @@version_comment
+		    65 Query	SET NAMES 'utf8mb4' COLLATE 'utf8mb4_general_ci'
+		    65 Query	SET lc_messages = 'en_US'
+		    66 Connect	root@172.150.0.4 on  using TCP/IP
+		    66 Query	SHOW TABLES FROM `phpmyadmin`
+		    65 Query	SET collation_connection = 'utf8mb4_unicode_ci'
+		    66 Query	SHOW TABLES FROM `phpmyadmin`
+		    65 Query	SELECT 1 FROM mysql.user LIMIT 1
+		    65 Query	SELECT CURRENT_USER()
+		    65 Query	SELECT 1 FROM (SELECT `GRANTEE`, `IS_GRANTABLE` FROM `INFORMATION_SCHEMA`.`COLUMN_PRIVILEGES` UNION SELECT `GRANTEE`, `IS_GRANTABLE` FROM `INFORMATION_SCHEMA`.`TABLE_PRIVILEGES` UNION SELECT `GRANTEE`, `IS_GRANTABLE` FROM `INFORMATION_SCHEMA`.`SCHEMA_PRIVILEGES` UNION SELECT `GRANTEE`, `IS_GRANTABLE` FROM `INFORMATION_SCHEMA`.`USER_PRIVILEGES`) t WHERE `IS_GRANTABLE` = 'YES' AND '''root''@''%''' LIKE `GRANTEE` LIMIT 1
+		    66 Quit	
+		    65 Quit	
+		    67 Connect	root@172.150.0.4 on  using TCP/IP
+		    67 Query	SELECT @@version, @@version_comment
+		    67 Query	SET NAMES 'utf8mb4' COLLATE 'utf8mb4_general_ci'
+		    67 Query	SET lc_messages = 'en_US'
+		    68 Connect	root@172.150.0.4 on  using TCP/IP
+		    68 Query	SHOW TABLES FROM `phpmyadmin`
+		    67 Query	SET collation_connection = 'utf8mb4_unicode_ci'
+		    68 Query	SHOW TABLES FROM `phpmyadmin`
+		    67 Query	SELECT 1 FROM mysql.user LIMIT 1
+		    67 Query	SELECT CURRENT_USER()
+		    67 Query	SELECT 1 FROM (SELECT `GRANTEE`, `IS_GRANTABLE` FROM `INFORMATION_SCHEMA`.`COLUMN_PRIVILEGES` UNION SELECT `GRANTEE`, `IS_GRANTABLE` FROM `INFORMATION_SCHEMA`.`TABLE_PRIVILEGES` UNION SELECT `GRANTEE`, `IS_GRANTABLE` FROM `INFORMATION_SCHEMA`.`SCHEMA_PRIVILEGES` UNION SELECT `GRANTEE`, `IS_GRANTABLE` FROM `INFORMATION_SCHEMA`.`USER_PRIVILEGES`) t WHERE `IS_GRANTABLE` = 'YES' AND '''root''@''%''' LIKE `GRANTEE` LIMIT 1
+		    68 Quit	
+		    67 Quit	
+241023 10:11:49	    69 Connect	root@172.150.0.4 on  using TCP/IP
+		    69 Query	SELECT @@version, @@version_comment
+		    69 Query	SET NAMES 'utf8mb4' COLLATE 'utf8mb4_general_ci'
+		    69 Query	SET lc_messages = 'en_US'
+		    70 Connect	root@172.150.0.4 on  using TCP/IP
+		    70 Query	SHOW TABLES FROM `phpmyadmin`
+		    69 Query	SET collation_connection = 'utf8mb4_unicode_ci'
+		    70 Query	SHOW TABLES FROM `phpmyadmin`
+		    69 Query	SELECT CURRENT_USER()
+		    69 Query	SELECT `SCHEMA_NAME` FROM `INFORMATION_SCHEMA`.`SCHEMATA`, (SELECT DB_first_level FROM ( SELECT DISTINCT SUBSTRING_INDEX(SCHEMA_NAME, '_', 1) DB_first_level FROM INFORMATION_SCHEMA.SCHEMATA WHERE TRUE ) t ORDER BY DB_first_level ASC LIMIT 0, 100) t2 WHERE TRUE AND 1 = LOCATE(CONCAT(DB_first_level, '_'), CONCAT(SCHEMA_NAME, '_')) ORDER BY SCHEMA_NAME ASC
+		    69 Query	SELECT COUNT(*) FROM `INFORMATION_SCHEMA`.`TABLES` WHERE `TABLE_SCHEMA`='logs_db' AND `TABLE_TYPE` IN('BASE TABLE', 'SYSTEM VERSIONED')
+		    69 Query	SELECT COUNT(*) FROM `INFORMATION_SCHEMA`.`TABLES` WHERE `TABLE_SCHEMA`='logs_db' AND `TABLE_TYPE` NOT IN('BASE TABLE', 'SYSTEM VERSIONED')
+		    69 Query	SELECT @@lower_case_table_names
+		    69 Query	SELECT COUNT(*) FROM `INFORMATION_SCHEMA`.`ROUTINES` WHERE `ROUTINE_SCHEMA` ='logs_db' AND `ROUTINE_TYPE`='FUNCTION'
+		    69 Query	SELECT COUNT(*) FROM `INFORMATION_SCHEMA`.`ROUTINES` WHERE `ROUTINE_SCHEMA` ='logs_db'AND `ROUTINE_TYPE`='PROCEDURE'
+		    69 Query	SELECT COUNT(*) FROM `INFORMATION_SCHEMA`.`EVENTS` WHERE `EVENT_SCHEMA` ='logs_db'
+		    69 Query	SELECT `TABLE_NAME` AS `name` FROM `INFORMATION_SCHEMA`.`TABLES` WHERE `TABLE_SCHEMA`='logs_db' AND `TABLE_TYPE` IN('BASE TABLE', 'SYSTEM VERSIONED') ORDER BY `TABLE_NAME` ASC LIMIT 0, 50
+		    69 Query	SELECT COUNT(*) FROM `INFORMATION_SCHEMA`.`TABLES` WHERE `TABLE_SCHEMA`='logs_db' AND `TABLE_TYPE` IN('BASE TABLE', 'SYSTEM VERSIONED')
+		    69 Query	SELECT COUNT(*) FROM `INFORMATION_SCHEMA`.`TABLES` WHERE `TABLE_SCHEMA`='logs_db' AND `TABLE_TYPE` IN('BASE TABLE', 'SYSTEM VERSIONED')
+		    69 Query	SELECT 1 FROM mysql.user LIMIT 1
+		    69 Query	SELECT 1 FROM (SELECT `GRANTEE`, `IS_GRANTABLE` FROM `INFORMATION_SCHEMA`.`COLUMN_PRIVILEGES` UNION SELECT `GRANTEE`, `IS_GRANTABLE` FROM `INFORMATION_SCHEMA`.`TABLE_PRIVILEGES` UNION SELECT `GRANTEE`, `IS_GRANTABLE` FROM `INFORMATION_SCHEMA`.`SCHEMA_PRIVILEGES` UNION SELECT `GRANTEE`, `IS_GRANTABLE` FROM `INFORMATION_SCHEMA`.`USER_PRIVILEGES`) t WHERE `IS_GRANTABLE` = 'YES' AND '''root''@''%''' LIKE `GRANTEE` LIMIT 1
+		    70 Quit	
+		    69 Quit	
+		    71 Connect	root@172.150.0.4 on  using TCP/IP
+		    71 Query	SELECT @@version, @@version_comment
+		    71 Query	SET NAMES 'utf8mb4' COLLATE 'utf8mb4_general_ci'
+		    71 Query	SET lc_messages = 'en_US'
+		    72 Connect	root@172.150.0.4 on  using TCP/IP
+		    72 Query	SHOW TABLES FROM `phpmyadmin`
+		    71 Query	SET collation_connection = 'utf8mb4_unicode_ci'
+		    72 Query	SHOW TABLES FROM `phpmyadmin`
+		    71 Query	SELECT 1 FROM mysql.user LIMIT 1
+		    71 Query	SELECT CURRENT_USER()
+		    71 Query	SELECT 1 FROM (SELECT `GRANTEE`, `IS_GRANTABLE` FROM `INFORMATION_SCHEMA`.`COLUMN_PRIVILEGES` UNION SELECT `GRANTEE`, `IS_GRANTABLE` FROM `INFORMATION_SCHEMA`.`TABLE_PRIVILEGES` UNION SELECT `GRANTEE`, `IS_GRANTABLE` FROM `INFORMATION_SCHEMA`.`SCHEMA_PRIVILEGES` UNION SELECT `GRANTEE`, `IS_GRANTABLE` FROM `INFORMATION_SCHEMA`.`USER_PRIVILEGES`) t WHERE `IS_GRANTABLE` = 'YES' AND '''root''@''%''' LIKE `GRANTEE` LIMIT 1
+		    72 Quit	
+		    71 Quit	

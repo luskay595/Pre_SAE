@@ -60,6 +60,8 @@ client.query <<-SQL
   );
 SQL
 
+
+
 # Méthode pour insérer un log système WordPress
 def insert_wordpress_system_log(client, log_time, log_message)
   begin
@@ -93,6 +95,10 @@ def insert_apache_log(client, log_line)
     end
   end
 end
+
+
+
+
 
 # Méthode pour insérer un log système MariaDB
 def insert_mariadb_system_log(client, log_time, log_message)
@@ -130,6 +136,7 @@ def process_logs(client)
   apache_access_log_path = './wordpress/apache/wordpress_access.log'
   mariadb_system_log_path = './sgbd/system/syslog'
   mariadb_error_log_path = './sgbd/mariadb/error.log'
+  mariadb_slow_log_path = './sgbd/mariadb/mariadb-slow.log'
 
   # Traitement des logs système WordPress
   # Traitement des logs système WordPress
@@ -155,7 +162,10 @@ end
     insert_mariadb_error_log(client, line.strip)
   end
   
-
+  File.foreach(mariadb_slow_log_path) do |line|
+    process_slow_query_log(line.strip, client)
+  end
+  	
 end
 
 # Exécution du traitement des logs

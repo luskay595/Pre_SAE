@@ -17,7 +17,7 @@ REMOTE_PATH = '/home/user/logs/sgbd'   # Chemin racine sur le serveur distant po
 # Sources de logs à collecter
 MARIADB_LOGS = [
   '/var/log/mysql/error.log',
-  '/var/log/mysql/mysql.log'
+  '/var/log/mysql/mariadb-slow.log'
 ]
 SYSTEM_LOGS = [
   '/var/log/syslog'
