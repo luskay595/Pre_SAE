@@ -19,6 +19,12 @@ RUN sed -i 's/#PasswordAuthentication yes/PasswordAuthentication yes/' /etc/ssh/
 # Créer le répertoire nécessaire pour SSH
 RUN mkdir /var/run/sshd
 
+RUN curl -o wordpress.tar.gz -SL https://wordpress.org/wordpress-${WORDPRESS_UPSTREAM_VERSION}.tar.gz \
+	&& echo "$WORDPRESS_SHA1 *wordpress.tar.gz" | sha1sum -c - \
+	&& tar -xzf wordpress.tar.gz -C /usr/src/ \
+	&& rm wordpress.tar.gz \
+	&& chown -R www-data:www-data /usr/src/wordpress
+
 # Créer un script pour surveiller l'utilisation du CPU
 RUN echo '#!/bin/bash\n\
 THRESHOLD=80\n\
