@@ -3,7 +3,7 @@ FROM debian:stable-slim
 
 # Installer les paquets nécessaires
 RUN apt-get update && \
-    apt-get install -y openssh-server rsync ruby nano ruby-dev build-essential libmariadb-dev openssh-client sshpass && \
+    apt-get install -y openssh-server rsync ruby nano rsyslog ruby-dev build-essential libmariadb-dev openssh-client sshpass cron && \
     mkdir /var/run/sshd && \
     gem install net-scp && \
     gem install bundler && \
@@ -28,13 +28,22 @@ RUN apt-get update && apt-get install -y sudo && \
 USER user
 RUN mkdir -p /home/user/logs
 
-# Revenir à l'utilisateur root pour démarrer le service SSH
+# Revenir à l'utilisateur root pour configurer cron
 USER root
+
+# Ajouter une tâche cron pour exécuter le script Ruby toutes les 30 minutes
+RUN echo "*/30 * * * * ruby /home/user/logs/execute_log_collection.rb" > /etc/cron.d/log_collector
+
+# Appliquer les permissions adéquates au fichier cron
+RUN chmod 0644 /etc/cron.d/log_collector
+
+# Assurer le démarrage de cron en parallèle du service SSH
+RUN crontab /etc/cron.d/log_collector
 
 # Exposer le port SSH
 EXPOSE 22
 
-# Commande pour démarrer le service SSH
-CMD ["/usr/sbin/sshd", "-D"]
+# Commande pour démarrer cron et le service SSH
+CMD cron && /usr/sbin/sshd -D 
 
 
