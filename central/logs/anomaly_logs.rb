@@ -1,3 +1,4 @@
+#!/usr/bin/env ruby
 require 'mysql2'
 require 'time'
 
