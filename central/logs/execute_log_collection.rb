@@ -37,5 +37,6 @@ end
 # Insertion des logs dans la base de données locale
 puts "Exécution du script local d'insertion de logs..."
 system("ruby insert_logs.rb")
-
+puts "Ex  cution du script local de detection d anomalie..."
+system("ruby anomaly_logs.rb")
 puts "Opération terminée avec succès."
