@@ -1,7 +1,0 @@
-172.150.0.1 - - [25/Oct/2024:05:58:53 +0000] "GET /favicon.ico HTTP/1.1" 404 488 "http://localhost/monitoring/" "Mozilla/5.0 (X11; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0"
-172.150.0.1 - - [25/Oct/2024:05:58:55 +0000] "GET /monitoring/ HTTP/1.1" 500 211 "-" "Mozilla/5.0 (X11; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0"
-172.150.0.1 - - [25/Oct/2024:05:59:03 +0000] "GET / HTTP/1.1" 403 491 "-" "Mozilla/5.0 (X11; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0"
-172.150.0.1 - - [25/Oct/2024:05:59:03 +0000] "GET /favicon.ico HTTP/1.1" 404 487 "http://localhost/" "Mozilla/5.0 (X11; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0"
-172.150.0.1 - - [25/Oct/2024:06:03:08 +0000] "GET /monitoring/ HTTP/1.1" 200 1158 "-" "Mozilla/5.0 (X11; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0"
-172.150.0.1 - - [25/Oct/2024:06:03:08 +0000] "GET /favicon.ico HTTP/1.1" 404 487 "http://localhost/monitoring/" "Mozilla/5.0 (X11; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0"
-172.150.0.1 - - [25/Oct/2024:06:03:12 +0000] "POST /monitoring/ HTTP/1.1" 200 1496 "http://localhost/monitoring/" "Mozilla/5.0 (X11; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0"

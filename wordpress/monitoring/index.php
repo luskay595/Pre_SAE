@@ -125,6 +125,7 @@ function get_anomalies($server_type, $anomaly_type) {
                     <option value="Utilisation CPU élevée">Utilisation CPU élevée</option>
                     <option value="Échec de connexion">Échec de connexion</option>
                     <option value="Erreur 500">Erreur 500</option>
+                    <option value="Requêtes lentes">Requêtes lentes</option> <!-- New option added -->
                 </select>
             </div>
             <input type="submit" value="Afficher les anomalies">

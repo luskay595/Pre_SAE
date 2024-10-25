@@ -1,8 +1,0 @@
-2024-10-25T06:57:50.734203+00:00 66052d2aa896 root: ALERT: Utilisation CPU élevée: 100%
-2024-10-25T06:57:51.527085+00:00 66052d2aa896 rsyslogd: imklog: cannot open kernel log (/proc/kmsg): Operation not permitted.
-2024-10-25T06:57:51.527105+00:00 66052d2aa896 rsyslogd: activation of module imklog failed [v8.2312.0 try https://www.rsyslog.com/e/2145 ]
-2024-10-25T06:57:51.527107+00:00 66052d2aa896 rsyslogd: rsyslogd's groupid changed to 103
-2024-10-25T06:57:51.527110+00:00 66052d2aa896 rsyslogd: rsyslogd's userid changed to 101
-2024-10-25T06:57:51.527113+00:00 66052d2aa896 rsyslogd: [origin software="rsyslogd" swVersion="8.2312.0" x-pid="17" x-info="https://www.rsyslog.com"] start
-2024-10-25T06:58:50.943717+00:00 66052d2aa896 root: ALERT: Utilisation CPU élevée: 100%
-2024-10-25T06:59:51.153233+00:00 66052d2aa896 root: ALERT: Utilisation CPU élevée: 100%
