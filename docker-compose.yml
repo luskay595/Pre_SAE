@@ -1,4 +1,4 @@
-version: '3'
+version: '3.8'
 
 services:
   wordpress:
@@ -14,7 +14,6 @@ services:
       WORDPRESS_DB_NAME: wordpress_db
     volumes:
       - ./wordpress:/var/www/html
-      - ./wordpress/apache-config/my-custom.conf:/etc/apache2/conf-available/my-custom.conf
     networks:
       log-net:
         ipv4_address: 172.150.0.2
@@ -38,8 +37,6 @@ services:
     volumes:
       - ./db_data:/var/lib/mysql
       - ./50-server.cnf:/etc/mysql/mariadb.conf.d/50-server.cnf
-      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
-      - ./my.cnf:/etc/mysql/my.cnf
     ports:
       - "3306:3306" 
     networks:
