@@ -66,7 +66,7 @@ CREATE TABLE IF NOT EXISTS mariadb_slow_query_logs (
   UNIQUE(log_time, host, query)
 );
 SQL
-
+system("ruby genrateur_log_test_anomalie.rb")
 # Méthode pour insérer un log système WordPress
 def insert_wordpress_system_log(client, log_time, log_message)
   begin
