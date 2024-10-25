@@ -105,6 +105,26 @@ function get_anomalies($server_type, $anomaly_type) {
             background-color: #f9f9f9;
         }
     </style>
+    <script>
+        function updateAnomalyOptions() {
+            const serverType = document.getElementById('server_type').value;
+            const anomalyTypeSelect = document.getElementById('anomaly_type');
+
+            // Enable all options first
+            for (let option of anomalyTypeSelect.options) {
+                option.style.display = 'block'; // Show all options
+                option.disabled = false; // Enable all options
+            }
+
+            // Hide or disable options based on selected server type
+            if (serverType === 'wordpress') {
+                anomalyTypeSelect.querySelector("option[value='Échec de connexion']").style.display = 'none';
+                anomalyTypeSelect.querySelector("option[value='Requêtes lentes']").style.display = 'none';
+            } else if (serverType === 'sgbd') {
+                anomalyTypeSelect.querySelector("option[value='Erreur 500']").style.display = 'none';
+            }
+        }
+    </script>
 </head>
 <body>
     <div class="container">
@@ -112,7 +132,7 @@ function get_anomalies($server_type, $anomaly_type) {
         <form action="" method="post">
             <div>
                 <label for="server_type">Sélectionnez un serveur :</label>
-                <select name="server_type" id="server_type">
+                <select name="server_type" id="server_type" onchange="updateAnomalyOptions()">
                     <option value="">Tous les serveurs</option>
                     <option value="wordpress">WordPress</option>
                     <option value="sgbd">SGDB</option>
@@ -125,6 +145,7 @@ function get_anomalies($server_type, $anomaly_type) {
                     <option value="Utilisation CPU élevée">Utilisation CPU élevée</option>
                     <option value="Échec de connexion">Échec de connexion</option>
                     <option value="Erreur 500">Erreur 500</option>
+                    <option value="Requêtes lentes">Requêtes lentes</option>
                 </select>
             </div>
             <input type="submit" value="Afficher les anomalies">
