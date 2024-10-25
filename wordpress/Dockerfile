@@ -4,7 +4,11 @@ FROM wordpress:latest
 # Installer Ruby, Nano, rsyslog, ssh, et la gem net-scp
 RUN apt-get update && apt-get install -y ruby nano rsyslog rsync openssh-server openssh-client sshpass sysstat bc && gem install net-scp
 
+COPY apache-config/my-custom.conf /etc/apache2/sites-available/my-custom.conf
 
+# Activer le VirtualHost et désactiver le VirtualHost par défaut
+RUN a2dissite 000-default \
+    && a2ensite my-custom
 # Configurer SSH pour permettre la connexion root avec mot de passe
 RUN echo 'root:testpsswd' | chpasswd
 RUN sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
