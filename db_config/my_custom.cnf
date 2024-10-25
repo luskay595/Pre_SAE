@@ -1,4 +1,0 @@
-# my_custom.cnf
-[mysqld]
-max_connections = 200
-query_cache_size = 16M
