@@ -1,0 +1,14 @@
+2024-11-05T13:49:56.023042+00:00 78fe315ff311 root: ALERT: Utilisation CPU élevée: 100%
+2024-11-05T13:49:56.737425+00:00 78fe315ff311 rsyslogd: imklog: cannot open kernel log (/proc/kmsg): Operation not permitted.
+2024-11-05T13:49:56.737459+00:00 78fe315ff311 rsyslogd: activation of module imklog failed [v8.2312.0 try https://www.rsyslog.com/e/2145 ]
+2024-11-05T13:49:56.737474+00:00 78fe315ff311 rsyslogd: rsyslogd's groupid changed to 103
+2024-11-05T13:49:56.737494+00:00 78fe315ff311 rsyslogd: rsyslogd's userid changed to 101
+2024-11-05T13:49:56.737507+00:00 78fe315ff311 rsyslogd: [origin software="rsyslogd" swVersion="8.2312.0" x-pid="17" x-info="https://www.rsyslog.com"] start
+2024-11-05T13:50:56.281970+00:00 78fe315ff311 root: ALERT: Utilisation CPU élevée: 100%
+2024-11-05T13:51:56.541055+00:00 78fe315ff311 root: ALERT: Utilisation CPU élevée: 100%
+2024-11-05T14:00:36.624786+00:00 78fe315ff311 root: ALERT: Utilisation CPU élevée: 100%
+2024-11-05T14:00:37.340053+00:00 78fe315ff311 rsyslogd: imklog: cannot open kernel log (/proc/kmsg): Operation not permitted.
+2024-11-05T14:00:37.340081+00:00 78fe315ff311 rsyslogd: activation of module imklog failed [v8.2312.0 try https://www.rsyslog.com/e/2145 ]
+2024-11-05T14:00:37.340089+00:00 78fe315ff311 rsyslogd: rsyslogd's groupid changed to 103
+2024-11-05T14:00:37.340098+00:00 78fe315ff311 rsyslogd: rsyslogd's userid changed to 101
+2024-11-05T14:00:37.340106+00:00 78fe315ff311 rsyslogd: [origin software="rsyslogd" swVersion="8.2312.0" x-pid="17" x-info="https://www.rsyslog.com"] start
