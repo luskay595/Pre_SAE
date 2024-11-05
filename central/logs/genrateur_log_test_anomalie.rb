@@ -3,10 +3,10 @@ require 'mysql2'
 
 # Configuration de la connexion à la base de données
 client = Mysql2::Client.new(
-  host: "db",
-  username: "root",
-  password: "root_password",
-  database: 'logs_db' 
+  host: ENV['DB_HOST'],
+  username: ENV['DB_USER_LOGS'],
+  password: ENV['DB_PASSWORD_LOGS'],
+  database: ENV['DB_DATABASE'] 
 )
 
 # Fonction pour vérifier l'existence du log

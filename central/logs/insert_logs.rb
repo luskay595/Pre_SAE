@@ -1,17 +1,18 @@
 #!/usr/bin/env ruby
 require 'mysql2'
 require 'date'
+require 'dotenv/load'  # Load environment variables from .env file
 
 # Configuration de la connexion à MariaDB
 client = Mysql2::Client.new(
-  host: "db",
-  username: "root",
-  password: "root_password"
+  host: ENV['DB_HOST'],
+  username: ENV['DB_USER_LOGS'],
+  password: ENV['DB_PASSWORD_LOGS'],
 )
 
 # Création de la base de données si elle n'existe pas
-client.query("CREATE DATABASE IF NOT EXISTS logs_db;")
-client.query("USE logs_db;")
+client.query("CREATE DATABASE IF NOT EXISTS #{ENV['DB_DATABASE']};")
+client.query("USE #{ENV['DB_DATABASE']};")
 
 # Création des tables pour les logs si elles n'existent pas déjà
 client.query <<-SQL
@@ -66,7 +67,9 @@ CREATE TABLE IF NOT EXISTS mariadb_slow_query_logs (
   UNIQUE(log_time, host, query)
 );
 SQL
+
 system("ruby genrateur_log_test_anomalie.rb")
+
 # Méthode pour insérer un log système WordPress
 def insert_wordpress_system_log(client, log_time, log_message)
   begin
@@ -174,7 +177,6 @@ def process_logs(client)
 end
 
 # Traitement des logs de requêtes lentes MariaDB
-# Traitement des logs de requêtes lentes MariaDB
 def process_mariadb_slow_logs(client, mariadb_slow_log_path)
   log_time = nil
   host = nil
@@ -212,7 +214,6 @@ def process_mariadb_slow_logs(client, mariadb_slow_log_path)
   # Traite les lignes restantes si le fichier ne se termine pas par une ligne vide
   insert_mariadb_slow_query_log(client, log_time, host, query) if log_time && host && query
 end
-
 
 # Exécution du traitement des logs
 process_logs(client)

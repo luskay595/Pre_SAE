@@ -8,6 +8,7 @@ RUN apt-get update && \
     gem install net-scp && \
     gem install bundler && \
     gem install mysql2 && \
+    gem install dotenv && \
     apt-get clean
 
 # Créer l'utilisateur `user` avec un mot de passe

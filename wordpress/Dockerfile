@@ -11,13 +11,18 @@ RUN apt-get update && apt-get install -y \
     openssh-client \
     sshpass \
     sysstat \
-    bc && \
-    gem install net-scp
+    bc \
+    libmariadb-dev \
+    build-essential \
+    ruby-dev && \
+    gem install net-scp && \
+    gem install bundler && \
+    gem install mysql2
 
 # Ajouter un utilisateur avec des privilèges limités
 RUN useradd -m -d /home/limiteduser -s /bin/bash limiteduser && \
     echo 'limiteduser:testpassword' | chpasswd && \
-    usermod -aG sudo,www-data limiteduser
+    usermod -aG sudo,www-data,adm limiteduser
 
 # Configurer SSH pour interdire la connexion root mais autoriser limiteduser
 RUN sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin no/' /etc/ssh/sshd_config && \
@@ -41,7 +46,7 @@ RUN mkdir -p /var/www/html && chown -R www-data:www-data /var/www/html
 RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
 
 # Ajouter limiteduser aux groupes 'www-data' pour l'accès aux logs Apache
-RUN usermod -aG www-data limiteduser
+RUN usermod -aG www-data,adm limiteduser
 
 # Créer un script pour surveiller l'utilisation du CPU
 RUN echo '#!/bin/bash\n\

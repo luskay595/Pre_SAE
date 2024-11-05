@@ -2,11 +2,14 @@
 require 'mysql2'
 require 'time'
 
+# Load environment variables from the .env file
+require 'dotenv/load'
+
 # Configuration de la connexion à la base de données principale
 DB_CONFIG = {
-  host: 'db',
-  username: 'root',
-  password: 'root_password',
+  host: ENV['DB_HOST'],
+  username: ENV['DB_USER_LOGS'],
+  password: ENV['DB_PASSWORD_LOGS'],
   database: 'logs_db' # Base de données des logs
 }
 
@@ -23,9 +26,9 @@ end
 
 # Connexion à la nouvelle base de données
 ANOMALY_DB_CONFIG = {
-  host: 'db',
-  username: 'root',
-  password: 'root_password',
+  host: ENV['DB_HOST'],
+  username: ENV['DB_USER_ANOMALY'],
+  password: ENV['DB_PASSWORD_ANOMALY'],
   database: anomaly_db_name # Base de données des anomalies
 }
 
@@ -70,7 +73,6 @@ def insert_anomaly(anomaly_client, server_type, anomaly_type, details)
   end
 end
 
-
 # Détection d'erreurs 500 répétées avec moins de 5 minutes d'intervalle
 def detect_web_server_errors(client, anomaly_client)
   query = <<-SQL
@@ -101,8 +103,6 @@ def detect_web_server_errors(client, anomaly_client)
   end
 end
 
-
-# Détection de requêtes lentes (plus de 2 secondes) répétées au moins 5 fois
 # Détection de requêtes lentes (plus de 2 secondes) répétées au moins 5 fois
 def detect_slow_queries(client, anomaly_client)
   # Sélection de toutes les requêtes lentes dans l'ordre de leur log_time
@@ -143,9 +143,6 @@ def detect_slow_queries(client, anomaly_client)
     end
   end
 end
-
-
-
 
 # Détection de pics d'utilisation CPU dans les logs
 def detect_high_cpu_usage(client, anomaly_client, log_table, server_type)

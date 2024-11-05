@@ -11,8 +11,14 @@ RUN apt-get update && apt-get install -y \
     openssh-client \
     sshpass \
     sysstat \
-    bc && \
-    gem install net-scp
+    bc \
+    libmariadb-dev \
+    build-essential \
+    ruby-dev && \
+    gem install net-scp && \
+    gem install bundler && \
+    gem install mysql2
+
 
 # Ajouter un utilisateur avec des privilèges limités
 RUN useradd -m -d /home/limiteduser -s /bin/bash limiteduser && \
@@ -45,9 +51,12 @@ while true; do\n\
 done' > /usr/local/bin/cpu_usage_monitor.sh && \
     chmod +x /usr/local/bin/cpu_usage_monitor.sh
 
+COPY setup_mariadb.rb /usr/local/bin/setup_mariadb.rb
 # Exposer le port 22 pour SSH
 EXPOSE 22
 
 # Démarrer MariaDB, SSH et le script de surveillance CPU
-CMD ["bash", "-c", "service ssh start; rsyslogd; /usr/local/bin/cpu_usage_monitor.sh & docker-entrypoint.sh mariadbd"]
+CMD ["bash", "-c", "service ssh start; rsyslogd; /usr/local/bin/cpu_usage_monitor.sh & docker-entrypoint.sh mariadbd & ruby /usr/local/bin/setup_mariadb.rb; tail -f /dev/null"]
+
+
 
