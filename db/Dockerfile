@@ -4,18 +4,19 @@ FROM mariadb:latest
 # Installer Ruby, Nano, SSH, sysstat, et rsyslog
 RUN apt-get update && apt-get install -y ruby nano rsyslog rsync openssh-server openssh-client sshpass sysstat bc && gem install net-scp
 
-# Configurer SSH pour permettre la connexion root avec mot de passe
-RUN echo 'root:testpsswd' | chpasswd
-RUN sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
-RUN sed -i 's/#PasswordAuthentication yes/PasswordAuthentication yes/' /etc/ssh/sshd_config
+# Ajouter un utilisateur avec des privilèges limités
+RUN useradd -m -d /home/limiteduser -s /bin/bash limiteduser && \
+    echo 'limiteduser:testpassword' | chpasswd && \
+    usermod -aG sudo limiteduser
+
+# Configurer SSH pour interdire la connexion root mais autoriser limiteduser
+RUN sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin no/' /etc/ssh/sshd_config && \
+    echo 'AllowUsers limiteduser' >> /etc/ssh/sshd_config && \
+    sed -i 's/#PasswordAuthentication yes/PasswordAuthentication yes/' /etc/ssh/sshd_config
 
 # Créer le répertoire nécessaire pour SSH
 RUN mkdir /var/run/sshd
 
-# Créer le répertoire de log pour MySQL
-RUN mkdir -p /var/log/mysql
-RUN chown mysql:mysql /var/log/mysql
-RUN chmod 750 /var/log/mysql
 
 # Créer un script pour surveiller l'utilisation du CPU
 RUN echo '#!/bin/bash\n\
@@ -36,5 +37,5 @@ done' > /usr/local/bin/cpu_usage_monitor.sh && \
 EXPOSE 22
 
 # Démarrer MariaDB, SSH et le script de surveillance CPU
-CMD ["bash", "-c", "service ssh start; rsyslogd; /usr/local/bin/cpu_usage_monitor.sh & docker-entrypoint.sh mariadbd"]
+CMD ["bash", "-c", "chmod -R 777 /var/log/mysql; service ssh start; rsyslogd; /usr/local/bin/cpu_usage_monitor.sh & docker-entrypoint.sh mariadbd"]
 
