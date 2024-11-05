@@ -1,4 +1,0 @@
-2024-11-05T17:17:16.917893+00:00 85f3073e47e5 root: ALERT: Utilisation CPU élevée: 100%
-2024-11-05T17:17:17.737857+00:00 85f3073e47e5 rsyslogd: imklog: cannot open kernel log (/proc/kmsg): Operation not permitted.
-2024-11-05T17:17:17.737898+00:00 85f3073e47e5 rsyslogd: activation of module imklog failed [v8.2302.0 try https://www.rsyslog.com/e/2145 ]
-2024-11-05T17:17:17.737902+00:00 85f3073e47e5 rsyslogd: [origin software="rsyslogd" swVersion="8.2302.0" x-pid="17" x-info="https://www.rsyslog.com"] start
