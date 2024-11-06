@@ -68,8 +68,49 @@ CREATE TABLE IF NOT EXISTS mariadb_slow_query_logs (
 );
 SQL
 
+# Creating log tables if they don't already exist
+client.query <<-SQL
+  CREATE TABLE IF NOT EXISTS mariadb_general_logs (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    log_time DATETIME,
+    query_number INT,   -- Ensure this column is created
+    request TEXT,
+    UNIQUE(log_time, query_number, request)
+  );
+SQL
+
+
 system("ruby genrateur_log_test_anomalie.rb")
 
+timestamp_pattern = /(\d{6} \d{1,2}:\d{2}:\d{2})/
+query_pattern = /(\d+) \S+\s+(.+)/
+def insert_mariadb_general_log(client, log_time, query_number, request)
+  begin
+    client.prepare("INSERT IGNORE INTO mariadb_general_logs (log_time, query_number, request) VALUES (?, ?, ?)").execute(log_time, query_number, request)
+  rescue Mysql2::Error => e
+    puts "Erreur lors de l'insertion du log mariadb général: #{e.message}"
+  end
+end
+
+def process_mariadb_general_logs(client, mariadb_log_path, timestamp_pattern, query_pattern)
+  current_timestamp = nil
+
+  File.foreach(mariadb_log_path, encoding: 'UTF-8') do |line|
+    # Match the timestamp pattern
+    timestamp_match = timestamp_pattern.match(line)
+    if timestamp_match
+      current_timestamp = DateTime.strptime(timestamp_match[1], "%y%m%d %H:%M:%S").to_time
+    end
+
+    # Match the query pattern
+    query_match = query_pattern.match(line)
+    if query_match && current_timestamp
+      query_number = query_match[1].to_i
+      request = query_match[2].strip
+      insert_mariadb_general_log(client, current_timestamp, query_number, request)
+    end
+  end
+end
 # Méthode pour insérer un log système WordPress
 def insert_wordpress_system_log(client, log_time, log_message)
   begin
@@ -149,6 +190,7 @@ def process_logs(client)
   mariadb_system_log_path = './sgbd/system/syslog'
   mariadb_error_log_path = './sgbd/mariadb/error.log'
   mariadb_slow_log_path = './sgbd/mariadb/mariadb-slow.log'
+  mariadb_general_log_path = './sgbd/mariadb/mysql.log'
 
   # Traitement des logs système WordPress
   File.foreach(wordpress_system_log_path, encoding: 'UTF-8') do |line|
@@ -173,6 +215,7 @@ def process_logs(client)
   end
 
   # Traitement des logs de requêtes lentes MariaDB
+   process_mariadb_general_logs(client, mariadb_general_log_path, /(\d{6} \d{1,2}:\d{2}:\d{2})/, /(\d+) \S+\s+(.+)/)
   process_mariadb_slow_logs(client, mariadb_slow_log_path)
 end
 
