@@ -1,20 +1,23 @@
 <?php
-// Connexion à la base de données
+// Activer l'affichage des erreurs pour le débogage
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
+// Connexion à la base de données anomaly_logs
 $DB_CONFIG = [
-    'host' => 'db',
+    'host' => 'db', // Vérifiez cet hôte (ex. localhost, 127.0.0.1, ou autre)
     'username' => 'root',
     'password' => 'root_password',
-    'database' => 'logs_db' // Base de données des logs
+    'database' => 'anomaly_logs'
 ];
 
-$anomaly_db_name = 'anomaly_logs';
-$anomaly_client = new mysqli($DB_CONFIG['host'], $DB_CONFIG['username'], $DB_CONFIG['password'], $anomaly_db_name);
-
+$anomaly_client = new mysqli($DB_CONFIG['host'], $DB_CONFIG['username'], $DB_CONFIG['password'], $DB_CONFIG['database']);
 if ($anomaly_client->connect_error) {
-    die("Connection failed: " . $anomaly_client->connect_error);
+    die("Échec de la connexion : " . $anomaly_client->connect_error);
 }
 
-// Récupération des anomalies avec filtrage
+// Fonction pour récupérer les anomalies
 function get_anomalies($server_type, $anomaly_type) {
     global $anomaly_client;
     $query = "SELECT * FROM detected_anomalies WHERE 1=1";
@@ -42,6 +45,27 @@ function get_anomalies($server_type, $anomaly_type) {
     $stmt->execute();
     return $stmt->get_result();
 }
+
+// Fonction pour obtenir le nombre d'anomalies par type
+function get_anomaly_counts() {
+    global $anomaly_client;
+    $query = "SELECT anomaly_type, COUNT(*) AS count FROM detected_anomalies GROUP BY anomaly_type";
+    $result = $anomaly_client->query($query);
+
+    $anomaly_counts = [];
+    if ($result->num_rows > 0) {
+        while ($row = $result->fetch_assoc()) {
+            $anomaly_counts[$row['anomaly_type']] = $row['count'];
+        }
+    }
+    return $anomaly_counts;
+}
+
+// Récupérer les données des formulaires
+$server_type = $_POST['server_type'] ?? '';
+$anomaly_type = $_POST['anomaly_type'] ?? '';
+$anomalies = get_anomalies($server_type, $anomaly_type);
+$anomaly_counts = get_anomaly_counts();
 ?>
 
 <!DOCTYPE html>
@@ -51,6 +75,7 @@ function get_anomalies($server_type, $anomaly_type) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Monitoring des Anomalies</title>
     <style>
+        /* Styles CSS simplifiés */
         body {
             font-family: Arial, sans-serif;
             background-color: #f4f4f4;
@@ -100,28 +125,72 @@ function get_anomalies($server_type, $anomaly_type) {
         table th {
             background-color: #f2f2f2;
             color: #333;
+            cursor: pointer; /* Indique que les colonnes sont cliquables */
         }
         table tr:nth-child(even) {
             background-color: #f9f9f9;
         }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        function updateAnomalyOptions() {
-            const serverType = document.getElementById('server_type').value;
-            const anomalyTypeSelect = document.getElementById('anomaly_type');
+        // Graphique avec Chart.js
+        window.onload = function() {
+            const anomalyCounts = <?= json_encode($anomaly_counts) ?>;
+            const ctx = document.getElementById('anomalyChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(anomalyCounts),
+                    datasets: [{
+                        label: 'Nombre d\'anomalies',
+                        data: Object.values(anomalyCounts),
+                        backgroundColor: 'rgba(0, 123, 255, 0.5)',
+                        borderColor: 'rgba(0, 123, 255, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+        };
 
-            // Enable all options first
-            for (let option of anomalyTypeSelect.options) {
-                option.style.display = 'block'; // Show all options
-                option.disabled = false; // Enable all options
-            }
-
-            // Hide or disable options based on selected server type
-            if (serverType === 'wordpress') {
-                anomalyTypeSelect.querySelector("option[value='Échec de connexion']").style.display = 'none';
-                anomalyTypeSelect.querySelector("option[value='Requêtes lentes']").style.display = 'none';
-            } else if (serverType === 'sgbd') {
-                anomalyTypeSelect.querySelector("option[value='Erreur 500']").style.display = 'none';
+        // Fonction de tri des colonnes du tableau
+        function sortTable(n, table) {
+            let rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+            switching = true;
+            dir = "asc"; // Tri croissant par défaut
+            while (switching) {
+                switching = false;
+                rows = table.rows;
+                for (i = 1; i < (rows.length - 1); i++) {
+                    shouldSwitch = false;
+                    x = rows[i].getElementsByTagName("TD")[n];
+                    y = rows[i + 1].getElementsByTagName("TD")[n];
+                    if (dir === "asc") {
+                        if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                            shouldSwitch = true;
+                            break;
+                        }
+                    } else if (dir === "desc") {
+                        if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+                            shouldSwitch = true;
+                            break;
+                        }
+                    }
+                }
+                if (shouldSwitch) {
+                    rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                    switching = true;
+                    switchcount++;
+                } else {
+                    if (switchcount === 0 && dir === "asc") {
+                        dir = "desc";
+                        switching = true;
+                    }
+                }
             }
         }
     </script>
@@ -134,64 +203,56 @@ function get_anomalies($server_type, $anomaly_type) {
                 <label for="server_type">Sélectionnez un serveur :</label>
                 <select name="server_type" id="server_type" onchange="updateAnomalyOptions()">
                     <option value="">Tous les serveurs</option>
-                    <option value="wordpress">WordPress</option>
-                    <option value="sgbd">SGDB</option>
+                    <option value="wordpress" <?= $server_type == 'wordpress' ? 'selected' : '' ?>>WordPress</option>
+                    <option value="sgbd" <?= $server_type == 'sgbd' ? 'selected' : '' ?>>SGDB</option>
                 </select>
             </div>
             <div>
                 <label for="anomaly_type">Sélectionnez un type d'anomalie :</label>
                 <select name="anomaly_type" id="anomaly_type">
                     <option value="">Tous les types</option>
-                    <option value="Utilisation CPU élevée">Utilisation CPU élevée</option>
-                    <option value="Échec de connexion">Échec de connexion</option>
-                    <option value="Erreur 500">Erreur 500</option>
-                    <option value="Requêtes lentes">Requêtes lentes</option>
+                    <option value="Utilisation CPU élevée" <?= $anomaly_type == 'Utilisation CPU élevée' ? 'selected' : '' ?>>Utilisation CPU élevée</option>
+                    <option value="Échec de connexion" <?= $anomaly_type == 'Échec de connexion' ? 'selected' : '' ?>>Échec de connexion</option>
+                    <option value="Erreur 500" <?= $anomaly_type == 'Erreur 500' ? 'selected' : '' ?>>Erreur 500</option>
+                    <option value="Requêtes lentes" <?= $anomaly_type == 'Requêtes lentes' ? 'selected' : '' ?>>Requêtes lentes</option>
                 </select>
             </div>
             <input type="submit" value="Afficher les anomalies">
         </form>
 
-        <?php if ($_SERVER['REQUEST_METHOD'] === 'POST'): ?>
-            <?php
-                $server_type = $_POST['server_type'] ?? '';
-                $anomaly_type = $_POST['anomaly_type'] ?? '';
-                $anomalies = get_anomalies($server_type, $anomaly_type);
-            ?>
-            <h2>Anomalies</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Type de serveur</th>
-                        <th>Type d'anomalie</th>
-                        <th>Détails</th>
-                        <th>Date de détection</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php if ($anomalies->num_rows > 0): ?>
-                        <?php while ($anomaly = $anomalies->fetch_assoc()): ?>
-                            <tr>
-                                <td><?= $anomaly['id'] ?></td>
-                                <td><?= htmlspecialchars($anomaly['server_type']) ?></td>
-                                <td><?= htmlspecialchars($anomaly['anomaly_type']) ?></td>
-                                <td><?= htmlspecialchars($anomaly['details']) ?></td>
-                                <td><?= htmlspecialchars($anomaly['detected_at']) ?></td>
-                            </tr>
-                        <?php endwhile; ?>
-                    <?php else: ?>
+        <h2>Anomalies</h2>
+        <table id="anomalyTable">
+            <thead>
+                <tr>
+                    <th onclick="sortTable(0, this.closest('table'))">ID</th>
+                    <th onclick="sortTable(1, this.closest('table'))">Type de serveur</th>
+                    <th onclick="sortTable(2, this.closest('table'))">Type d'anomalie</th>
+                    <th onclick="sortTable(3, this.closest('table'))">Détails</th>
+                    <th onclick="sortTable(4, this.closest('table'))">Date de détection</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php if ($anomalies->num_rows > 0): ?>
+                    <?php while ($anomaly = $anomalies->fetch_assoc()): ?>
                         <tr>
-                            <td colspan="5" style="text-align: center;">Aucune anomalie trouvée.</td>
+                            <td><?= htmlspecialchars($anomaly['id']) ?></td>
+                            <td><?= htmlspecialchars($anomaly['server_type']) ?></td>
+                            <td><?= htmlspecialchars($anomaly['anomaly_type']) ?></td>
+                            <td><?= htmlspecialchars($anomaly['details']) ?></td>
+                            <td><?= htmlspecialchars($anomaly['detected_at']) ?></td>
                         </tr>
-                    <?php endif; ?>
-                </tbody>
-            </table>
-        <?php endif; ?>
+                    <?php endwhile; ?>
+                <?php else: ?>
+                    <tr>
+                        <td colspan="5" style="text-align: center;">Aucune anomalie trouvée.</td>
+                    </tr>
+                <?php endif; ?>
+            </tbody>
+        </table>
+
+        <h2>Statistiques des Anomalies</h2>
+        <canvas id="anomalyChart"></canvas>
     </div>
 </body>
 </html>
-
-<?php
-$anomaly_client->close();
-?>
 
