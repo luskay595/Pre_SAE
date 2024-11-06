@@ -1,0 +1,23 @@
+# Ignore tout le dossier db_data sauf le dossier script
+db_data/*
+!db_data/script/
+
+# Ignore tout le contenu du dossier wordpress sauf les dossiers apache-config, monitoring et script, ainsi que les fichiers Dockerfile
+wordpress/*
+!wordpress/apache-config/
+!wordpress/monitoring/
+!wordpress/script/
+!wordpress/Dockerfile
+
+# Ignore les fichiers générés par Docker
+**/docker-compose.override.yml
+**/.docker
+
+# Ignore les fichiers de logs
+**/*.log
+**/logs/
+**/log/
+
+# Ignore les fichiers temporaires
+**/tmp/
+
