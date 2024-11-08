@@ -82,11 +82,12 @@ SQL
 
 system("ruby genrateur_log_test_anomalie.rb")
 
-timestamp_pattern = /(\d{6} \d{1,2}:\d{2}:\d{2})/
+timestamp_pattern = /(\d{6}  \d{1,2}:\d{2}:\d{2})/
 query_pattern = /(\d+) \S+\s+(.+)/
 def insert_mariadb_general_log(client, log_time, query_number, request)
   begin
     client.prepare("INSERT IGNORE INTO mariadb_general_logs (log_time, query_number, request) VALUES (?, ?, ?)").execute(log_time, query_number, request)
+    puts "Insertion du log général MariaDB : #{log_time}, #{query_number}, #{request}"
   rescue Mysql2::Error => e
     puts "Erreur lors de l'insertion du log mariadb général: #{e.message}"
   end
@@ -215,7 +216,7 @@ def process_logs(client)
   end
 
   # Traitement des logs de requêtes lentes MariaDB
-   process_mariadb_general_logs(client, mariadb_general_log_path, /(\d{6} \d{1,2}:\d{2}:\d{2})/, /(\d+) \S+\s+(.+)/)
+   process_mariadb_general_logs(client, mariadb_general_log_path, /(\d{6}  \d{1,2}:\d{2}:\d{2})/, /(\d+) \S+\s+(.+)/)
   process_mariadb_slow_logs(client, mariadb_slow_log_path)
 end
 

@@ -165,12 +165,45 @@ def detect_failed_logins(logs_client, anomaly_client)
   end
 end
 
+def detect_403_errors(logs_client, anomaly_client)
+  query = <<-SQL
+    SELECT status_code, log_time 
+    FROM apache_logs
+    WHERE status_code = 403
+    ORDER BY log_time ASC
+  SQL
+
+  results = logs_client.query(query)
+  errors = []
+  last_time = nil
+
+  results.each do |row|
+    log_time = row['log_time']
+    if last_time.nil? || (log_time - last_time) > 300
+      errors = [log_time]
+    else
+      errors << log_time
+      if errors.size > 5
+        details = "#{errors.size} erreurs 403 détectées entre #{errors.first} et #{errors.last}"
+        insert_anomaly(anomaly_client, 'wordpress', 'Erreur 403', details)
+        puts "Anomalie détectée : #{details}"
+        errors.clear
+      end
+    end
+    last_time = log_time
+  end
+end
+
+
+
+
 # Appel des fonctions pour détecter les anomalies
 detect_web_server_errors(logs_client, anomaly_client)
 detect_slow_queries(logs_client, anomaly_client)
 detect_high_cpu_usage(logs_client, anomaly_client, 'mariadb_system_logs', 'sgbd')
 detect_high_cpu_usage(logs_client, anomaly_client, 'wordpress_system_logs', 'wordpress')
 detect_failed_logins(logs_client, anomaly_client)
+detect_403_errors(logs_client, anomaly_client)
 
 # Fermeture des connexions
 logs_client.close
